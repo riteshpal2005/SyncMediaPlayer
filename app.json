@@ -3,9 +3,10 @@
     "name": "SyncMediaPlayer",
     "slug": "SyncMediaPlayer",
     "version": "1.0.0",
+    "scheme": "syncmediaplayer",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -21,7 +22,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "dev.ritesh.syncmediaplayer"
     },
     "web": {
       "favicon": "./assets/favicon.png",
