@@ -1,9 +1,14 @@
-import { MMKV } from 'react-native-mmkv';
+import { createMMKV } from 'react-native-mmkv/';
 import { StateStorage } from 'zustand/middleware';
 
-export const storage = new MMKV({
+export const storage = createMMKV({
   id: 'app-theme-storage',
+  // If you ever need it down the line, you can throw in your:
+  // encryptionKey: 'your-key',
+  // mode: 'multi-process'
 });
+
+
 
 export const mmkvStorage: StateStorage = {
   setItem: (name, value) => {
@@ -14,6 +19,6 @@ export const mmkvStorage: StateStorage = {
     return value ?? null;
   },
   removeItem: (name) => {
-    storage.delete(name);
+    storage.remove(name);
   },
 };
