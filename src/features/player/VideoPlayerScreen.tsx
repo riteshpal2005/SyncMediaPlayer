@@ -8,6 +8,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { StatusBar } from 'expo-status-bar';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -33,6 +34,7 @@ export default function VideoPlayerScreen() {
   const [isLocked, setIsLocked] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(true);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
   
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -97,6 +99,14 @@ export default function VideoPlayerScreen() {
 
   const toggleLock = () => {
     setIsLocked(!isLocked);
+    resetControlsTimer();
+  };
+
+  const cyclePlaybackRate = () => {
+    if (!player || isLocked) return;
+    const nextRate = playbackRate === 1.0 ? 1.25 : playbackRate === 1.25 ? 1.5 : playbackRate === 1.5 ? 2.0 : playbackRate === 2.0 ? 0.5 : 1.0;
+    player.playbackRate = nextRate;
+    setPlaybackRate(nextRate);
     resetControlsTimer();
   };
 
@@ -192,11 +202,15 @@ export default function VideoPlayerScreen() {
 
             {!isLocked && (
               <View style={styles.topRight}>
+                <Pressable onPress={cyclePlaybackRate} style={[styles.iconButton, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
+                  <MaterialIcons name="speed" size={24} color="white" />
+                  <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}>{playbackRate}x</Text>
+                </Pressable>
                 <Pressable onPress={() => { setSubtitlesEnabled(!subtitlesEnabled); resetControlsTimer(); }} style={styles.iconButton}>
-                  <Ionicons name="chatbubble-ellipses-outline" size={24} color={subtitlesEnabled ? "#3b82f6" : "white"} />
+                  <MaterialIcons name="closed-caption" size={26} color={subtitlesEnabled ? "#3b82f6" : "white"} />
                 </Pressable>
                 <Pressable onPress={() => { resetControlsTimer(); }} style={styles.iconButton}>
-                  <Ionicons name="musical-notes" size={24} color="white" />
+                  <MaterialIcons name="audiotrack" size={24} color="white" />
                 </Pressable>
               </View>
             )}
