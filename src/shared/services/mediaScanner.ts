@@ -11,12 +11,18 @@ export interface VideoAsset {
   height: number;
 }
 
+export interface VideoGroup {
+  albumId: string;
+  albumName: string;
+  videos: VideoAsset[];
+}
+
 export async function requestMediaPermissions(): Promise<boolean> {
   const { status } = await MediaLibrary.requestPermissionsAsync();
   return status === 'granted';
 }
 
-export async function scanForVideos(): Promise<VideoAsset[]> {
+export async function scanForVideos(): Promise<VideoGroup[]> {
   const hasPermission = await requestMediaPermissions();
   
   if (!hasPermission) {
@@ -34,11 +40,12 @@ export async function scanForVideos(): Promise<VideoAsset[]> {
     targetAlbumNames.includes(album.title)
   );
 
-  let allVideos: VideoAsset[] = [];
+  const videoGroups: VideoGroup[] = [];
 
   for (const album of targetAlbums) {
     let hasNextPage = true;
     let endCursor: string | undefined = undefined;
+    const albumVideos: VideoAsset[] = [];
 
     while (hasNextPage) {
       const pagedInfo: MediaLibrary.PagedInfo<MediaLibrary.Asset> = await MediaLibrary.getAssetsAsync({
@@ -59,19 +66,24 @@ export async function scanForVideos(): Promise<VideoAsset[]> {
         height: asset.height,
       }));
 
-      allVideos = [...allVideos, ...mappedAssets];
+      albumVideos.push(...mappedAssets);
 
       hasNextPage = pagedInfo.hasNextPage;
       endCursor = pagedInfo.endCursor;
     }
+
+    if (albumVideos.length > 0) {
+      // Remove duplicates just in case and sort by creation time
+      const uniqueVideos = Array.from(new Map(albumVideos.map(item => [item.id, item])).values());
+      uniqueVideos.sort((a, b) => b.creationTime - a.creationTime);
+
+      videoGroups.push({
+        albumId: album.id,
+        albumName: album.title,
+        videos: uniqueVideos,
+      });
+    }
   }
 
-  // Also query without album constraints if for some reason albums didn't match perfectly,
-  // but to adhere strictly to the user requirement: "Main Folders to look in Download, Movies, Pictures"
-  // the above is sufficient.
-
-  // Remove duplicates just in case
-  const uniqueVideos = Array.from(new Map(allVideos.map(item => [item.id, item])).values());
-  
-  return uniqueVideos.sort((a, b) => b.creationTime - a.creationTime);
+  return videoGroups;
 }
