@@ -1,10 +1,19 @@
-import React from "react";
-import { View, Text } from "react-native";
+import React from 'react';
+import { View, Text } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useThemeStore } from '../../shared/store/useThemeStore';
 
 export default function AudioScreen() {
-    return (
-        <View className="flex-1 justify-center items-center bg-white dark:bg-slate-900">
-            <Text className="text-lg font-bold text-slate-900 dark:text-white">Audio Player</Text>
-        </View>
-    );
-};
+  const themeMode = useThemeStore((state) => state.themeMode);
+  const isDark = themeMode === 'dark';
+  const iconColor = isDark ? '#94a3b8' : '#64748b';
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Ionicons name="musical-notes-outline" size={64} color={iconColor} />
+      <Text className="mt-4 text-2xl font-bold text-slate-800 dark:text-slate-200">
+        Audio
+      </Text>
+    </View>
+  );
+}
