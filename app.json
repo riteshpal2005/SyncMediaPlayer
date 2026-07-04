@@ -23,14 +23,26 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "dev.ritesh.syncmediaplayer"
+      "package": "dev.ritesh.syncmediaplayer",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "READ_MEDIA_VIDEO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow SyncMediaPlayer to access your videos.",
+          "savePhotosPermission": "Allow SyncMediaPlayer to save videos.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ]
     ]
   }
 }
