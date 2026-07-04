@@ -42,7 +42,8 @@
           "savePhotosPermission": "Allow SyncMediaPlayer to save videos.",
           "isAccessMediaLocationEnabled": false
         }
-      ]
+      ],
+      "expo-video"
     ]
   }
 }
