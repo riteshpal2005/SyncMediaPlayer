@@ -4,7 +4,8 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as Brightness from 'expo-brightness';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusBar } from 'expo-status-bar';
 
@@ -82,26 +83,26 @@ export default function VideoPlayerScreen() {
   };
 
   // Gestures
-  const handleGesture = (event: any) => {
+  const handleGestureUpdate = (translationY: number, absoluteX: number) => {
     resetControlsTimer();
-    const { translationY, absoluteX } = event.nativeEvent;
-    
-    if (event.nativeEvent.state === State.ACTIVE) {
-      if (absoluteX < SCREEN_WIDTH / 2) {
-        // Left side: Brightness
-        const newBrightness = Math.max(0, Math.min(1, brightness - (translationY / SCREEN_HEIGHT)));
-        Brightness.setBrightnessAsync(newBrightness);
-        setBrightness(newBrightness);
-      } else {
-        // Right side: Volume
-        if (player) {
-          const currentVol = player.volume;
-          const newVol = Math.max(0, Math.min(1, currentVol - (translationY / SCREEN_HEIGHT) * 0.1));
-          player.volume = newVol;
-        }
+    if (absoluteX < SCREEN_WIDTH / 2) {
+      // Left side: Brightness
+      const newBrightness = Math.max(0, Math.min(1, brightness - (translationY / SCREEN_HEIGHT)));
+      Brightness.setBrightnessAsync(newBrightness);
+      setBrightness(newBrightness);
+    } else {
+      // Right side: Volume
+      if (player) {
+        const currentVol = player.volume;
+        const newVol = Math.max(0, Math.min(1, currentVol - (translationY / SCREEN_HEIGHT) * 0.1));
+        player.volume = newVol;
       }
     }
   };
+
+  const panGesture = Gesture.Pan().onUpdate((event) => {
+    runOnJS(handleGestureUpdate)(event.translationY, event.absoluteX);
+  });
 
   // Double tap
   const handleDoubleTap = (direction: 'left' | 'right') => {
@@ -126,7 +127,7 @@ export default function VideoPlayerScreen() {
       />
 
       {/* Overlay for Gestures & Double Taps */}
-      <PanGestureHandler onGestureEvent={handleGesture} onHandlerStateChange={handleGesture}>
+      <GestureDetector gesture={panGesture}>
         <View style={StyleSheet.absoluteFill}>
           <Pressable 
             style={styles.gestureOverlay}
@@ -146,7 +147,7 @@ export default function VideoPlayerScreen() {
             />
           </Pressable>
         </View>
-      </PanGestureHandler>
+      </GestureDetector>
 
       {/* UI Controls */}
       {controlsVisible && (
