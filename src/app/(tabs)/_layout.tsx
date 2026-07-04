@@ -60,6 +60,15 @@ export default function TabLayout() {
         }}
       />
       <MaterialTopTabs.Screen
+        name="browse"
+        options={{
+          title: 'Browse',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'folder' : 'folder-outline'} size={24} color={color} />
+          ),
+        }}
+      />
+      <MaterialTopTabs.Screen
         name="settings"
         options={{
           title: 'Settings',
