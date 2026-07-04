@@ -80,7 +80,6 @@ export default function VideoScreen() {
               renderItem={({ item }) => <VideoThumbnailCard video={item} />}
               keyExtractor={(item) => item.id}
               horizontal
-              estimatedItemSize={160}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 16 }}
             />
