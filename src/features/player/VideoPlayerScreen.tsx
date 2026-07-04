@@ -26,6 +26,9 @@ export default function VideoPlayerScreen() {
   const [currentTime, setCurrentTime] = useState(0);
   const [showRemainingTime, setShowRemainingTime] = useState(false);
   const [brightness, setBrightness] = useState(0.5);
+  const [isLocked, setIsLocked] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(true);
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
   
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -34,20 +37,31 @@ export default function VideoPlayerScreen() {
     player.play();
   });
 
-  // Track player progress
   useEffect(() => {
     if (!player) return;
-    const sub = player.addListener('statusChange', (status) => {
-      // Logic for status
-    });
-    // Interval for progress because expo-video currently doesn't fire frequent progress events perfectly yet
     const interval = setInterval(() => {
       setCurrentTime(player.currentTime || 0);
+      // Mock duration since expo-video player.duration isn't always reliable during init
+      if (duration === 0 && player.currentTime > 0) {
+        setDuration(player.currentTime * 10); // Fake duration logic for demo if no metadata
+      }
     }, 500);
     return () => clearInterval(interval);
   }, [player]);
 
-  // Handle controls auto hide
+  const toggleControls = () => {
+    setControlsVisible(prev => {
+      const next = !prev;
+      if (next) {
+        if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+        hideControlsTimer.current = setTimeout(() => setControlsVisible(false), 3000);
+      } else {
+        if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+      }
+      return next;
+    });
+  };
+
   const resetControlsTimer = () => {
     setControlsVisible(true);
     if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
@@ -58,40 +72,40 @@ export default function VideoPlayerScreen() {
 
   useEffect(() => {
     resetControlsTimer();
-    
-    // Default to Landscape Fullscreen
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     
     return () => {
       if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
-      // Revert orientation when leaving
       ScreenOrientation.unlockAsync();
     };
   }, []);
 
-  const toggleOrientation = async () => {
-    const current = await ScreenOrientation.getOrientationAsync();
-    if (
-      current === ScreenOrientation.Orientation.LANDSCAPE_LEFT || 
-      current === ScreenOrientation.Orientation.LANDSCAPE_RIGHT
-    ) {
+  const toggleFullscreen = async () => {
+    if (isLocked) return;
+    if (isFullscreen) {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+      setIsFullscreen(false);
     } else {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+      setIsFullscreen(true);
     }
     resetControlsTimer();
   };
 
-  // Gestures
+  const toggleLock = () => {
+    setIsLocked(!isLocked);
+    resetControlsTimer();
+  };
+
+  // Gestures Update Handlers
   const handleGestureUpdate = (translationY: number, absoluteX: number) => {
+    if (isLocked) return;
     resetControlsTimer();
     if (absoluteX < SCREEN_WIDTH / 2) {
-      // Left side: Brightness
       const newBrightness = Math.max(0, Math.min(1, brightness - (translationY / SCREEN_HEIGHT)));
       Brightness.setBrightnessAsync(newBrightness);
       setBrightness(newBrightness);
     } else {
-      // Right side: Volume
       if (player) {
         const currentVol = player.volume;
         const newVol = Math.max(0, Math.min(1, currentVol - (translationY / SCREEN_HEIGHT) * 0.1));
@@ -100,13 +114,8 @@ export default function VideoPlayerScreen() {
     }
   };
 
-  const panGesture = Gesture.Pan().onUpdate((event) => {
-    scheduleOnRN(handleGestureUpdate, event.translationY, event.absoluteX);
-  });
-
-  // Double tap
   const handleDoubleTap = (direction: 'left' | 'right') => {
-    if (!player) return;
+    if (!player || isLocked) return;
     if (direction === 'left') {
       player.currentTime = Math.max(0, player.currentTime - 5);
     } else {
@@ -114,6 +123,35 @@ export default function VideoPlayerScreen() {
     }
     resetControlsTimer();
   };
+
+  // Define Gestures
+  const panGesture = Gesture.Pan().onUpdate((event) => {
+    scheduleOnRN(handleGestureUpdate, event.translationY, event.absoluteX);
+  });
+
+  const doubleTap = Gesture.Tap()
+    .numberOfTaps(2)
+    .onEnd((event) => {
+      if (event.absoluteX < SCREEN_WIDTH / 2) {
+        scheduleOnRN(handleDoubleTap, 'left');
+      } else {
+        scheduleOnRN(handleDoubleTap, 'right');
+      }
+    });
+
+  const singleTap = Gesture.Tap()
+    .onEnd(() => {
+      scheduleOnRN(toggleControls);
+    });
+
+  // Prioritize double tap over single tap
+  singleTap.requireExternalGestureToFail(doubleTap);
+
+  // Combine them all
+  const composedGestures = Gesture.Simultaneous(
+    panGesture,
+    Gesture.Exclusive(doubleTap, singleTap)
+  );
 
   return (
     <View style={styles.container}>
@@ -126,85 +164,94 @@ export default function VideoPlayerScreen() {
         allowsPictureInPicture
       />
 
-      {/* Overlay for Gestures & Double Taps */}
-      <GestureDetector gesture={panGesture}>
+      {/* Unified Gesture Overlay */}
+      <GestureDetector gesture={composedGestures}>
         <View style={StyleSheet.absoluteFill}>
-          <Pressable 
-            style={styles.gestureOverlay}
-            onPress={resetControlsTimer}
-          >
-            {/* Left Double Tap Zone */}
-            <Pressable 
-              style={styles.doubleTapZone} 
-              onPress={() => {}} // Handle single tap
-              // Double tap would need a custom implementation or TapGestureHandler with numberOfTaps=2
-              onLongPress={() => handleDoubleTap('left')}
-            />
-            {/* Right Double Tap Zone */}
-            <Pressable 
-              style={styles.doubleTapZone}
-              onLongPress={() => handleDoubleTap('right')}
-            />
-          </Pressable>
+          
+          {/* UI Controls - Rendered on top of video, but under gesture detector (or visually above, interactions pass through) */}
+          {/* We must place UI elements *outside* the Gesture Detector if they need their own press events, OR set absolute position on top */}
         </View>
       </GestureDetector>
 
-      {/* UI Controls */}
+      {/* UI Controls overlay (Absolute positioned on top of Gesture Detector to receive button presses) */}
       {controlsVisible && (
-        <View style={styles.controlsContainer}>
+        <View style={styles.controlsContainer} pointerEvents="box-none">
+          
+          <View style={styles.darkGradientOverlay} pointerEvents="none" />
+
           {/* Top Bar */}
           <View style={styles.topBar}>
-            <Pressable onPress={() => router.back()} style={styles.iconButton}>
-              <Ionicons name="arrow-back" size={28} color="white" />
-            </Pressable>
-            <Text style={styles.filename} numberOfLines={1}>{filename}</Text>
-            <Pressable onPress={toggleOrientation} style={styles.iconButton}>
-              <Ionicons name="phone-landscape-outline" size={24} color="white" />
-            </Pressable>
+            <View style={styles.topLeft}>
+              <Pressable onPress={() => router.back()} style={styles.iconButton}>
+                <Ionicons name="arrow-back" size={28} color="white" />
+              </Pressable>
+              <Pressable onPress={toggleLock} style={styles.iconButton}>
+                <Ionicons name={isLocked ? "lock-closed" : "lock-open"} size={24} color={isLocked ? "#ef4444" : "white"} />
+              </Pressable>
+              <Text style={styles.filename} numberOfLines={1}>{filename}</Text>
+            </View>
+
+            {!isLocked && (
+              <View style={styles.topRight}>
+                <Pressable onPress={() => { setSubtitlesEnabled(!subtitlesEnabled); resetControlsTimer(); }} style={styles.iconButton}>
+                  <Ionicons name="chatbubble-ellipses-outline" size={24} color={subtitlesEnabled ? "#3b82f6" : "white"} />
+                </Pressable>
+                <Pressable onPress={() => { resetControlsTimer(); }} style={styles.iconButton}>
+                  <Ionicons name="musical-notes" size={24} color="white" />
+                </Pressable>
+              </View>
+            )}
           </View>
 
           {/* Middle Controls */}
-          <View style={styles.middleControls}>
-            <Pressable style={styles.iconButton}>
-              <Ionicons name="play-skip-back" size={40} color="white" />
-            </Pressable>
-            <Pressable 
-              style={styles.playPauseButton}
-              onPress={() => {
-                if (player.playing) {
-                  player.pause();
-                  setIsPlaying(false);
-                } else {
-                  player.play();
-                  setIsPlaying(true);
-                }
-                resetControlsTimer();
-              }}
-            >
-              <Ionicons name={player.playing ? "pause" : "play"} size={50} color="white" />
-            </Pressable>
-            <Pressable style={styles.iconButton}>
-              <Ionicons name="play-skip-forward" size={40} color="white" />
-            </Pressable>
-          </View>
+          {!isLocked && (
+            <View style={styles.middleControls}>
+              <Pressable style={styles.iconButton}>
+                <Ionicons name="play-skip-back" size={40} color="white" />
+              </Pressable>
+              <Pressable 
+                style={styles.playPauseButton}
+                onPress={() => {
+                  if (player.playing) {
+                    player.pause();
+                    setIsPlaying(false);
+                  } else {
+                    player.play();
+                    setIsPlaying(true);
+                  }
+                  resetControlsTimer();
+                }}
+              >
+                <Ionicons name={player.playing ? "pause" : "play"} size={50} color="white" />
+              </Pressable>
+              <Pressable style={styles.iconButton}>
+                <Ionicons name="play-skip-forward" size={40} color="white" />
+              </Pressable>
+            </View>
+          )}
 
           {/* Bottom Bar */}
-          <View style={styles.bottomBar}>
-            <View style={styles.timeRow}>
-              <Pressable onPress={() => setShowRemainingTime(!showRemainingTime)}>
-                <Text style={styles.timeText}>
-                  {showRemainingTime ? `-${formatTime(Math.max(0, duration - currentTime))}` : formatTime(currentTime)}
-                </Text>
-              </Pressable>
-              
-              {/* Fake Progress Bar for UI demo purposes */}
-              <View style={styles.progressBarBg}>
-                <View style={[styles.progressBarFill, { width: `${(currentTime / Math.max(1, duration)) * 100}%` }]} />
+          {!isLocked && (
+            <View style={styles.bottomBar}>
+              <View style={styles.timeRow}>
+                <Pressable onPress={() => setShowRemainingTime(!showRemainingTime)}>
+                  <Text style={styles.timeText}>
+                    {showRemainingTime ? `-${formatTime(Math.max(0, duration - currentTime))}` : formatTime(currentTime)}
+                  </Text>
+                </Pressable>
+                
+                <View style={styles.progressBarBg}>
+                  <View style={[styles.progressBarFill, { width: `${(currentTime / Math.max(1, duration)) * 100}%` }]} />
+                </View>
+                
+                <Text style={styles.timeText}>{formatTime(duration)}</Text>
+
+                <Pressable onPress={toggleFullscreen} style={[styles.iconButton, { marginLeft: 10 }]}>
+                  <Ionicons name={isFullscreen ? "contract" : "expand"} size={24} color="white" />
+                </Pressable>
               </View>
-              
-              <Text style={styles.timeText}>{formatTime(duration)}</Text>
             </View>
-          </View>
+          )}
         </View>
       )}
     </View>
@@ -219,38 +266,45 @@ const styles = StyleSheet.create({
   video: {
     ...StyleSheet.absoluteFillObject,
   },
-  gestureOverlay: {
+  darkGradientOverlay: {
     ...StyleSheet.absoluteFillObject,
-    flexDirection: 'row',
-  },
-  doubleTapZone: {
-    flex: 1,
-    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
   controlsContainer: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    zIndex: 10,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
     marginTop: 20,
+  },
+  topLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  topRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
   },
   filename: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 15,
-    flex: 1,
+    marginLeft: 10,
+    flexShrink: 1,
   },
   iconButton: {
     padding: 10,
   },
   playPauseButton: {
     padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 50,
   },
   middleControls: {
@@ -260,7 +314,8 @@ const styles = StyleSheet.create({
     gap: 40,
   },
   bottomBar: {
-    padding: 30,
+    paddingHorizontal: 30,
+    paddingBottom: 30,
   },
   timeRow: {
     flexDirection: 'row',
@@ -272,17 +327,18 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     minWidth: 50,
     textAlign: 'center',
+    fontWeight: '500',
   },
   progressBarBg: {
     flex: 1,
     height: 4,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.3)', // Unwatched segment (grey translucent)
     marginHorizontal: 15,
     borderRadius: 2,
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#3b82f6', // Tailwind blue-500
+    backgroundColor: '#3b82f6', // Watched segment (accent blue)
     borderRadius: 2,
   },
 });
