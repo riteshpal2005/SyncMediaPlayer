@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as Brightness from 'expo-brightness';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusBar } from 'expo-status-bar';
@@ -56,10 +57,29 @@ export default function VideoPlayerScreen() {
 
   useEffect(() => {
     resetControlsTimer();
+    
+    // Default to Landscape Fullscreen
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    
     return () => {
       if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+      // Revert orientation when leaving
+      ScreenOrientation.unlockAsync();
     };
   }, []);
+
+  const toggleOrientation = async () => {
+    const current = await ScreenOrientation.getOrientationAsync();
+    if (
+      current === ScreenOrientation.Orientation.LANDSCAPE_LEFT || 
+      current === ScreenOrientation.Orientation.LANDSCAPE_RIGHT
+    ) {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    } else {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    }
+    resetControlsTimer();
+  };
 
   // Gestures
   const handleGesture = (event: any) => {
@@ -101,6 +121,7 @@ export default function VideoPlayerScreen() {
       <VideoView
         style={styles.video}
         player={player}
+        nativeControls={false}
         allowsPictureInPicture
       />
 
@@ -136,6 +157,9 @@ export default function VideoPlayerScreen() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </Pressable>
             <Text style={styles.filename} numberOfLines={1}>{filename}</Text>
+            <Pressable onPress={toggleOrientation} style={styles.iconButton}>
+              <Ionicons name="phone-landscape-outline" size={24} color="white" />
+            </Pressable>
           </View>
 
           {/* Middle Controls */}
