@@ -5,7 +5,7 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import * as Brightness from 'expo-brightness';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { runOnJS } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusBar } from 'expo-status-bar';
 
@@ -101,7 +101,7 @@ export default function VideoPlayerScreen() {
   };
 
   const panGesture = Gesture.Pan().onUpdate((event) => {
-    runOnJS(handleGestureUpdate)(event.translationY, event.absoluteX);
+    scheduleOnRN(handleGestureUpdate, event.translationY, event.absoluteX);
   });
 
   // Double tap
