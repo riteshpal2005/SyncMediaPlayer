@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 import * as DocumentPicker from 'expo-document-picker';
 
@@ -84,7 +85,15 @@ export default function BrowseScreen() {
           </Text>
 
           <View className="mt-6 flex-row justify-end">
-            <TouchableOpacity className="bg-slate-100 dark:bg-slate-700 px-4 py-2 rounded-lg flex-row items-center">
+            <TouchableOpacity 
+              onPress={() => {
+                router.push({
+                  pathname: '/player',
+                  params: { uri: selectedFile.uri, filename: selectedFile.name }
+                });
+              }}
+              className="bg-slate-100 dark:bg-slate-700 px-4 py-2 rounded-lg flex-row items-center"
+            >
               <Ionicons name="play" size={18} color={isDark ? 'white' : 'black'} />
               <Text className="ml-2 font-bold text-slate-800 dark:text-slate-200">
                 Play

@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { VideoAsset } from '../services/mediaScanner';
 
 interface Props {
@@ -15,8 +16,15 @@ function formatDuration(seconds: number) {
 }
 
 export const VideoThumbnailCard = React.memo(({ video }: Props) => {
+  const handlePress = () => {
+    router.push({
+      pathname: '/player',
+      params: { uri: video.uri, filename: video.filename }
+    });
+  };
+
   return (
-    <View className="mr-4 w-40">
+    <Pressable onPress={handlePress} className="mr-4 w-40">
       {/* Thumbnail Container */}
       <View className="w-40 h-24 bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden relative justify-center items-center">
         {/* We use React Native's Image component which can natively extract a frame from a local video URI */}
@@ -46,6 +54,7 @@ export const VideoThumbnailCard = React.memo(({ video }: Props) => {
       >
         {video.filename}
       </Text>
-    </View>
+    </Pressable>
   );
 });
+
