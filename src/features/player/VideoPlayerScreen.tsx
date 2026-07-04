@@ -6,15 +6,19 @@ import * as Brightness from 'expo-brightness';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
+import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusBar } from 'expo-status-bar';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Format time utility
 const formatTime = (seconds: number) => {
-  const m = Math.floor(seconds / 60);
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
+  if (h > 0) {
+    return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  }
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 };
 
@@ -178,14 +182,10 @@ export default function VideoPlayerScreen() {
           
           <View style={styles.darkGradientOverlay} pointerEvents="none" />
 
-          {/* Top Bar */}
           <View style={styles.topBar}>
             <View style={styles.topLeft}>
               <Pressable onPress={() => router.back()} style={styles.iconButton}>
                 <Ionicons name="arrow-back" size={28} color="white" />
-              </Pressable>
-              <Pressable onPress={toggleLock} style={styles.iconButton}>
-                <Ionicons name={isLocked ? "lock-closed" : "lock-open"} size={24} color={isLocked ? "#ef4444" : "white"} />
               </Pressable>
               <Text style={styles.filename} numberOfLines={1}>{filename}</Text>
             </View>
@@ -233,15 +233,33 @@ export default function VideoPlayerScreen() {
           {!isLocked && (
             <View style={styles.bottomBar}>
               <View style={styles.timeRow}>
+                <Pressable onPress={toggleLock} style={[styles.iconButton, { marginRight: 10 }]}>
+                  <Ionicons name={isLocked ? "lock-closed" : "lock-open"} size={24} color={isLocked ? "#ef4444" : "white"} />
+                </Pressable>
+
                 <Pressable onPress={() => setShowRemainingTime(!showRemainingTime)}>
                   <Text style={styles.timeText}>
                     {showRemainingTime ? `-${formatTime(Math.max(0, duration - currentTime))}` : formatTime(currentTime)}
                   </Text>
                 </Pressable>
                 
-                <View style={styles.progressBarBg}>
-                  <View style={[styles.progressBarFill, { width: `${(currentTime / Math.max(1, duration)) * 100}%` }]} />
-                </View>
+                <Slider
+                  style={styles.slider}
+                  minimumValue={0}
+                  maximumValue={Math.max(1, duration)}
+                  value={currentTime}
+                  minimumTrackTintColor="#3b82f6"
+                  maximumTrackTintColor="rgba(255,255,255,0.3)"
+                  thumbTintColor="#3b82f6"
+                  onSlidingStart={() => {
+                    // Pause controls auto-hide while scrubbing
+                    if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+                  }}
+                  onSlidingComplete={(val) => {
+                    player.currentTime = val;
+                    resetControlsTimer();
+                  }}
+                />
                 
                 <Text style={styles.timeText}>{formatTime(duration)}</Text>
 
@@ -324,20 +342,13 @@ const styles = StyleSheet.create({
   timeText: {
     color: 'white',
     fontVariant: ['tabular-nums'],
-    minWidth: 50,
+    minWidth: 45,
     textAlign: 'center',
     fontWeight: '500',
   },
-  progressBarBg: {
+  slider: {
     flex: 1,
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.3)', // Unwatched segment (grey translucent)
-    marginHorizontal: 15,
-    borderRadius: 2,
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#3b82f6', // Watched segment (accent blue)
-    borderRadius: 2,
+    height: 40,
+    marginHorizontal: 10,
   },
 });
