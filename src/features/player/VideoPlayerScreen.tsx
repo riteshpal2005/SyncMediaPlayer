@@ -41,9 +41,8 @@ export default function VideoPlayerScreen() {
     if (!player) return;
     const interval = setInterval(() => {
       setCurrentTime(player.currentTime || 0);
-      // Mock duration since expo-video player.duration isn't always reliable during init
-      if (duration === 0 && player.currentTime > 0) {
-        setDuration(player.currentTime * 10); // Fake duration logic for demo if no metadata
+      if (player.duration) {
+        setDuration(player.duration);
       }
     }, 500);
     return () => clearInterval(interval);
