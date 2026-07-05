@@ -115,7 +115,7 @@ export default function VideoScreen() {
             data={gridData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={true}
+            showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl 
                 refreshing={isLoading && isInitialScanCompleted}
