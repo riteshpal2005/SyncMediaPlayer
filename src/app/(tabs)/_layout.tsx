@@ -9,7 +9,10 @@ export default function TabLayout() {
   const themeMode = useThemeStore((state) => state.themeMode);
   const insets = useSafeAreaInsets();
 
-  const isDark = themeMode === 'dark';
+  const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
+  const bgColor = isDark ? '#09090b' : '#f4f4f5';
+  const surfaceColor = isDark ? '#18181b' : '#ffffff';
+  const borderColor = isDark ? '#27272a' : '#e4e4e7';
   const brandPrimary = isDark ? '#3b82f6' : '#2563eb';
   const textTertiary = isDark ? '#71717a' : '#a1a1aa';
 
@@ -43,27 +46,23 @@ export default function TabLayout() {
       screenOptions={{
         sceneStyle: {
           paddingTop: insets.top,
-          backgroundColor: 'var(--color-background)',
+          backgroundColor: bgColor,
         },
         tabBarShowLabel: false,
         tabBarIndicatorStyle: {
           display: 'none',
         },
         tabBarStyle: {
-          position: 'absolute',
-          bottom: insets.bottom > 0 ? insets.bottom : 16,
-          left: 16,
-          right: 16,
-          backgroundColor: 'var(--color-surface)',
-          borderRadius: 24,
-          borderWidth: 1,
-          borderColor: 'var(--color-border)',
-          height: 64,
+          backgroundColor: surfaceColor,
+          borderTopWidth: 1,
+          borderTopColor: borderColor,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
           elevation: 8,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
+          shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
-          shadowRadius: 12,
+          shadowRadius: 4,
           justifyContent: 'center',
         },
         tabBarItemStyle: {
