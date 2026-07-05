@@ -13,7 +13,6 @@ export default function TabLayout() {
   const brandPrimary = isDark ? '#3b82f6' : '#2563eb';
   const textTertiary = isDark ? '#71717a' : '#a1a1aa';
 
-  // Helper to render the custom chip for each tab
   const renderTabIcon = (
     focused: boolean,
     activeIcon: keyof typeof Ionicons.glyphMap,
@@ -25,14 +24,14 @@ export default function TabLayout() {
         <View className="items-center justify-center w-16 h-12">
           <View className="absolute inset-0 rounded-xl bg-[var(--color-brand-primary)] opacity-15" />
           <Ionicons name={activeIcon} size={24} color={brandPrimary} />
-          <Text className="mt-0.5 font-bold text-[10px] text-[var(--color-brand-primary)]">{label}</Text>
+          <Text className="mt-0.5 font-bold text-[10px] text-[var(--color-text-secondary)]">{label}</Text>
         </View>
       );
     }
     return (
       <View className="items-center justify-center w-16 h-12">
         <Ionicons name={inactiveIcon} size={24} color={textTertiary} />
-        <Text className="mt-0.5 font-medium text-[10px] text-[var(--color-text-tertiary)]">{label}</Text>
+        {/* Only show text when in focus */}
       </View>
     );
   };
