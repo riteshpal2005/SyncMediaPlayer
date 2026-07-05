@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, Text } from 'react-native';
 import { MaterialTopTabs } from '../../shared/components/MaterialTopTabs';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,9 +10,30 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   const isDark = themeMode === 'dark';
-  const bgColor = isDark ? '#0f172a' : '#ffffff';
-  const activeColor = isDark ? '#3b82f6' : '#2563eb';
   const inactiveColor = isDark ? '#94a3b8' : '#64748b';
+
+  // Helper to render the custom chip for each tab
+  const renderTabIcon = (
+    focused: boolean,
+    color: string,
+    activeIcon: keyof typeof Ionicons.glyphMap,
+    inactiveIcon: keyof typeof Ionicons.glyphMap,
+    label: string
+  ) => {
+    if (focused) {
+      return (
+        <View className="flex-row items-center justify-center px-4 py-2 rounded-full bg-[var(--color-brand-primary)] min-w-[90px]">
+          <Ionicons name={activeIcon} size={20} color="#ffffff" />
+          <Text className="ml-2 font-medium text-white text-sm">{label}</Text>
+        </View>
+      );
+    }
+    return (
+      <View className="items-center justify-center py-2">
+        <Ionicons name={inactiveIcon} size={24} color={inactiveColor} />
+      </View>
+    );
+  };
 
   return (
     <MaterialTopTabs
@@ -20,24 +42,21 @@ export default function TabLayout() {
       screenOptions={{
         sceneStyle: {
           paddingTop: insets.top,
-          backgroundColor: isDark ? '#020617' : '#f8fafc',
+          backgroundColor: isDark ? '#020617' : '#f8fafc', // Using native props for root bg as safe fallback
         },
-        tabBarActiveTintColor: activeColor,
-        tabBarInactiveTintColor: inactiveColor,
-        tabBarShowLabel: false, // Hide labels as per user request
+        tabBarShowLabel: false,
         tabBarIndicatorStyle: {
-          backgroundColor: activeColor,
-          height: 3,
-          top: 0,
+          display: 'none', // Remove bar above focused icon
         },
         tabBarStyle: {
-          backgroundColor: bgColor,
+          backgroundColor: isDark ? 'var(--color-background, #0f172a)' : 'var(--color-surface, #ffffff)',
           borderTopWidth: 1,
-          borderTopColor: isDark ? '#1e293b' : '#e2e8f0',
-          height: 52 + insets.bottom,
+          borderTopColor: isDark ? '#1e293b' : 'var(--color-border, #e4e4e7)',
+          height: 60 + insets.bottom,
           paddingBottom: insets.bottom,
           elevation: 8,
           shadowOpacity: 0.1,
+          justifyContent: 'center',
         },
       }}
     >
@@ -45,36 +64,32 @@ export default function TabLayout() {
         name="video"
         options={{
           title: 'Video',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'videocam' : 'videocam-outline'} size={24} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => 
+            renderTabIcon(focused, color, 'film', 'film-outline', 'Video'),
         }}
       />
       <MaterialTopTabs.Screen
         name="audio"
         options={{
           title: 'Audio',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'musical-notes' : 'musical-notes-outline'} size={24} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => 
+            renderTabIcon(focused, color, 'musical-notes', 'musical-notes-outline', 'Audio'),
         }}
       />
       <MaterialTopTabs.Screen
         name="browse"
         options={{
           title: 'Browse',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'folder' : 'folder-outline'} size={24} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => 
+            renderTabIcon(focused, color, 'folder', 'folder-outline', 'Browse'),
         }}
       />
       <MaterialTopTabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={24} color={color} />
-          ),
+          tabBarIcon: ({ color, focused }) => 
+            renderTabIcon(focused, color, 'settings', 'settings-outline', 'Settings'),
         }}
       />
     </MaterialTopTabs>
