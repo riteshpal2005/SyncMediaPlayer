@@ -69,7 +69,7 @@ export default function VideoScreen() {
     return (
       <View className="flex-row px-2 mb-4">
         {item.items.map((gridItem) => (
-          <View key={gridItem.id} style={{ flex: 1, paddingHorizontal: 4 }}>
+          <View key={gridItem.id} className="flex-1 px-1">
             {gridItem.type === 'folder' ? (
               <FolderCard group={gridItem.group} />
             ) : (
@@ -78,14 +78,14 @@ export default function VideoScreen() {
           </View>
         ))}
         {Array.from({ length: 2 - item.items.length }).map((_, idx) => (
-          <View key={`empty-${idx}`} style={{ flex: 1, paddingHorizontal: 4 }} />
+          <View key={`empty-${idx}`} className="flex-1 px-1" />
         ))}
       </View>
     );
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-900">
+    <View className="flex-1 bg-[var(--color-background)]">
       <CustomSplashScreen />
 
       {errorMsg ? (
