@@ -9,28 +9,30 @@ export default function TabLayout() {
   const themeMode = useThemeStore((state) => state.themeMode);
   const insets = useSafeAreaInsets();
 
-  const isDark = themeMode === 'dark';
-  const inactiveColor = isDark ? '#94a3b8' : '#64748b';
+  const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
+  const brandPrimary = isDark ? '#3b82f6' : '#2563eb';
+  const textTertiary = isDark ? '#71717a' : '#a1a1aa';
 
   // Helper to render the custom chip for each tab
   const renderTabIcon = (
     focused: boolean,
-    color: string,
     activeIcon: keyof typeof Ionicons.glyphMap,
     inactiveIcon: keyof typeof Ionicons.glyphMap,
     label: string
   ) => {
     if (focused) {
       return (
-        <View className="flex-row items-center justify-center px-4 py-2 rounded-full bg-[var(--color-brand-primary)] min-w-[90px]">
-          <Ionicons name={activeIcon} size={20} color="#ffffff" />
-          <Text className="ml-2 font-medium text-white text-sm">{label}</Text>
+        <View className="items-center justify-center w-16 h-12">
+          <View className="absolute inset-0 rounded-xl bg-[var(--color-brand-primary)] opacity-15" />
+          <Ionicons name={activeIcon} size={24} color={brandPrimary} />
+          <Text className="mt-0.5 font-bold text-[10px] text-[var(--color-brand-primary)]">{label}</Text>
         </View>
       );
     }
     return (
-      <View className="items-center justify-center py-2">
-        <Ionicons name={inactiveIcon} size={24} color={inactiveColor} />
+      <View className="items-center justify-center w-16 h-12">
+        <Ionicons name={inactiveIcon} size={24} color={textTertiary} />
+        <Text className="mt-0.5 font-medium text-[10px] text-[var(--color-text-tertiary)]">{label}</Text>
       </View>
     );
   };
@@ -42,20 +44,33 @@ export default function TabLayout() {
       screenOptions={{
         sceneStyle: {
           paddingTop: insets.top,
-          backgroundColor: isDark ? '#020617' : '#f8fafc', // Using native props for root bg as safe fallback
+          backgroundColor: 'var(--color-background)',
         },
         tabBarShowLabel: false,
         tabBarIndicatorStyle: {
-          display: 'none', // Remove bar above focused icon
+          display: 'none',
         },
         tabBarStyle: {
-          backgroundColor: isDark ? 'var(--color-background, #0f172a)' : 'var(--color-surface, #ffffff)',
-          borderTopWidth: 1,
-          borderTopColor: isDark ? '#1e293b' : 'var(--color-border, #e4e4e7)',
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom,
+          position: 'absolute',
+          bottom: insets.bottom > 0 ? insets.bottom : 16,
+          left: 16,
+          right: 16,
+          backgroundColor: 'var(--color-surface)',
+          borderRadius: 24,
+          borderWidth: 1,
+          borderColor: 'var(--color-border)',
+          height: 64,
           elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.1,
+          shadowRadius: 12,
+          justifyContent: 'center',
+        },
+        tabBarItemStyle: {
+          padding: 0,
+          margin: 0,
+          alignItems: 'center',
           justifyContent: 'center',
         },
       }}
@@ -64,32 +79,32 @@ export default function TabLayout() {
         name="video"
         options={{
           title: 'Video',
-          tabBarIcon: ({ color, focused }) => 
-            renderTabIcon(focused, color, 'film', 'film-outline', 'Video'),
+          tabBarIcon: ({ focused }) => 
+            renderTabIcon(focused, 'film', 'film', 'Video'),
         }}
       />
       <MaterialTopTabs.Screen
         name="audio"
         options={{
           title: 'Audio',
-          tabBarIcon: ({ color, focused }) => 
-            renderTabIcon(focused, color, 'musical-notes', 'musical-notes-outline', 'Audio'),
+          tabBarIcon: ({ focused }) => 
+            renderTabIcon(focused, 'musical-notes', 'musical-notes', 'Audio'),
         }}
       />
       <MaterialTopTabs.Screen
         name="browse"
         options={{
           title: 'Browse',
-          tabBarIcon: ({ color, focused }) => 
-            renderTabIcon(focused, color, 'folder', 'folder-outline', 'Browse'),
+          tabBarIcon: ({ focused }) => 
+            renderTabIcon(focused, 'folder', 'folder', 'Browse'),
         }}
       />
       <MaterialTopTabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, focused }) => 
-            renderTabIcon(focused, color, 'settings', 'settings-outline', 'Settings'),
+          tabBarIcon: ({ focused }) => 
+            renderTabIcon(focused, 'settings', 'settings', 'Settings'),
         }}
       />
     </MaterialTopTabs>
