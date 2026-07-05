@@ -65,11 +65,6 @@ export const FolderCard = React.memo(({ group }: Props) => {
           resizeMode="cover"
         />
         
-        {/* Folder Icon Overlay */}
-        <View className="absolute bg-black/50 rounded-full p-2">
-          <Ionicons name="folder-outline" size={24} color="white" />
-        </View>
-
         {/* Video Count Badge */}
         <View className="absolute bottom-1 right-1 bg-black/70 px-1.5 py-0.5 rounded">
           <Text className="text-white text-xs font-medium">

@@ -38,6 +38,11 @@ export async function scanForVideos(): Promise<VideoGroup[]> {
   let ungroupedVideos: VideoAsset[] = [];
 
   for (const album of albums) {
+    const titleLower = album.title.toLowerCase();
+    if (titleLower === 'camera' || titleLower.includes('whatsapp')) {
+      continue;
+    }
+
     let hasNextPage = true;
     let endCursor: string | undefined = undefined;
     const albumVideos: VideoAsset[] = [];
