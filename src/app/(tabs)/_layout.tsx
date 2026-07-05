@@ -45,7 +45,6 @@ export default function TabLayout() {
       tabBarPosition="bottom"
       screenOptions={{
         sceneStyle: {
-          paddingTop: insets.top,
           backgroundColor: bgColor,
         },
         tabBarShowLabel: false,

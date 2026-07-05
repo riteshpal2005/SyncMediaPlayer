@@ -110,13 +110,12 @@ export default function VideoScreen() {
           </Text>
         </ScrollView>
       ) : (
-        <View className="flex-1 pt-4">
+        <View className="flex-1 mb-4">
           <FlashList
             data={gridData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={true}
-            contentContainerStyle={{ paddingBottom: 24 }}
             refreshControl={
               <RefreshControl 
                 refreshing={isLoading && isInitialScanCompleted}
