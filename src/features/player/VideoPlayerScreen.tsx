@@ -10,6 +10,7 @@ import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { StatusBar } from 'expo-status-bar';
+import { useProgressStore } from '../../shared/store/useProgressStore';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -37,22 +38,38 @@ export default function VideoPlayerScreen() {
   const [playbackRate, setPlaybackRate] = useState(1.0);
   
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
+  
+  const updateProgress = useProgressStore((state) => state.updateProgress);
+  const getProgress = useProgressStore((state) => state.getProgress);
+  
+  const hasRestoredProgress = useRef(false);
 
   const player = useVideoPlayer(uri, player => {
     player.loop = false;
+    // Auto-restore progress on start
+    const savedProgress = getProgress(uri);
+    if (savedProgress && !savedProgress.completed && savedProgress.currentTime > 0) {
+      player.currentTime = savedProgress.currentTime;
+    }
+    hasRestoredProgress.current = true;
     player.play();
   });
 
   useEffect(() => {
     if (!player) return;
     const interval = setInterval(() => {
-      setCurrentTime(player.currentTime || 0);
-      if (player.duration) {
-        setDuration(player.duration);
+      const current = player.currentTime || 0;
+      setCurrentTime(current);
+      
+      const dur = player.duration || 0;
+      if (dur > 0) {
+        setDuration(dur);
+        // Persist progress periodically
+        updateProgress(uri, current, dur);
       }
     }, 500);
     return () => clearInterval(interval);
-  }, [player]);
+  }, [player, uri, updateProgress]);
 
   const toggleControls = () => {
     setControlsVisible(prev => {
