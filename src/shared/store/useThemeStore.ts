@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { Appearance } from 'react-native';
 import { mmkvStorage } from './mmkv-storage';
 
-type ThemeMode = 'light' | 'dark' | 'system' ;
+type ThemeMode = 'light' | 'dark' | 'system' | 'pitch-black';
 
 interface ThemeState {
   themeMode: ThemeMode;

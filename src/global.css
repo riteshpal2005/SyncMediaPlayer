@@ -2,22 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light Theme (Default) */
-:root {
-  --color-background: #f4f4f5;
-  --color-surface: #ffffff;
-  --color-border: #e4e4e7;
-  --color-text-primary: #000000;
-  --color-text-secondary: #71717a;
-  --color-text-tertiary: #a1a1aa;
-
-  --color-brand-primary: #2563eb;
-  --color-brand-primary-content: #ffffff;
-  --color-status-danger: #ef4444;
-  --color-status-success: #10b981;
-}
-
-.theme-dark {
+/* Dark Theme (Default) */
+:root, .dark, .theme-dark {
   --color-background: #09090b;
   --color-surface: #18181b;
   --color-border: #27272a;
@@ -31,8 +17,23 @@
   --color-status-success: #10b981;
 }
 
+/* Light Theme */
+.light, .theme-light {
+  --color-background: #f4f4f5;
+  --color-surface: #ffffff;
+  --color-border: #e4e4e7;
+  --color-text-primary: #000000;
+  --color-text-secondary: #71717a;
+  --color-text-tertiary: #a1a1aa;
+
+  --color-brand-primary: #2563eb;
+  --color-brand-primary-content: #ffffff;
+  --color-status-danger: #ef4444;
+  --color-status-success: #10b981;
+}
+
 /* Pitch Black (OLED) Theme */
-.theme-pitch-black {
+.pitch-black, .theme-pitch-black {
   --color-background: #000000;
   --color-surface: #09090b;
   --color-border: #18181b;
