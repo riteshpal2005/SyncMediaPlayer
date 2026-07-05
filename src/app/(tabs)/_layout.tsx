@@ -34,7 +34,7 @@ export default function TabLayout() {
     return (
       <View className="items-center justify-center w-16 h-12">
         <Ionicons name={inactiveIcon} size={24} color={textTertiary} />
-        <Text className="mt-0.5 font-bold text-[10px] text-transparent">{label}</Text>
+        <Text className="mt-0.5 font-bold text-[10px] opacity-0">{label}</Text>
       </View>
     );
   };
