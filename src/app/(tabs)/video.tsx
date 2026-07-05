@@ -116,6 +116,7 @@ export default function VideoScreen() {
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={true}
+            contentContainerStyle={{ paddingBottom: 24 }}
             refreshControl={
               <RefreshControl 
                 refreshing={isLoading && isInitialScanCompleted}
