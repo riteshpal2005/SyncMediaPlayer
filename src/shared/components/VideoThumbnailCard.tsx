@@ -24,9 +24,9 @@ export const VideoThumbnailCard = React.memo(({ video }: Props) => {
   };
 
   return (
-    <Pressable onPress={handlePress} className="mr-4 w-40">
+    <Pressable onPress={handlePress} className="w-full">
       {/* Thumbnail Container */}
-      <View className="w-40 h-24 bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden relative justify-center items-center">
+      <View className="w-full aspect-video bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden relative justify-center items-center">
         {/* We use React Native's Image component which can natively extract a frame from a local video URI */}
         <Image 
           source={{ uri: video.uri }} 

@@ -34,15 +34,10 @@ export async function scanForVideos(): Promise<VideoGroup[]> {
     includeSmartAlbums: true,
   });
 
-  // Filter the target albums
-  const targetAlbumNames = ['Download', 'Movies', 'Pictures'];
-  const targetAlbums = albums.filter((album) =>
-    targetAlbumNames.includes(album.title)
-  );
-
   const videoGroups: VideoGroup[] = [];
+  let ungroupedVideos: VideoAsset[] = [];
 
-  for (const album of targetAlbums) {
+  for (const album of albums) {
     let hasNextPage = true;
     let endCursor: string | undefined = undefined;
     const albumVideos: VideoAsset[] = [];
@@ -77,12 +72,32 @@ export async function scanForVideos(): Promise<VideoGroup[]> {
       const uniqueVideos = Array.from(new Map(albumVideos.map(item => [item.id, item])).values());
       uniqueVideos.sort((a, b) => b.creationTime - a.creationTime);
 
-      videoGroups.push({
-        albumId: album.id,
-        albumName: album.title,
-        videos: uniqueVideos,
-      });
+      if (album.title === 'Download' || album.title === 'Movies') {
+        ungroupedVideos.push(...uniqueVideos);
+      } else {
+        videoGroups.push({
+          albumId: album.id,
+          albumName: album.title,
+          videos: uniqueVideos,
+        });
+      }
     }
+  }
+
+  // Sort groups alphabetically by albumName
+  videoGroups.sort((a, b) => a.albumName.localeCompare(b.albumName));
+
+  // Add ungrouped videos at the top if there are any
+  if (ungroupedVideos.length > 0) {
+    // Sort combined ungrouped videos
+    const uniqueUngrouped = Array.from(new Map(ungroupedVideos.map(item => [item.id, item])).values());
+    uniqueUngrouped.sort((a, b) => b.creationTime - a.creationTime);
+    
+    videoGroups.unshift({
+      albumId: 'ungrouped',
+      albumName: 'Ungrouped', // This will be used to identify it in UI and hide the header
+      videos: uniqueUngrouped,
+    });
   }
 
   return videoGroups;
