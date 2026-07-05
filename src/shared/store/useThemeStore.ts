@@ -17,7 +17,7 @@ const syncNativeWindEngine = (mode: ThemeMode) => {
     if (mode === 'system') {
       Appearance.setColorScheme(null); 
     } else {
-      Appearance.setColorScheme(mode);
+      Appearance.setColorScheme(mode === 'pitch-black' ? 'dark' : mode);
     }
 
     
