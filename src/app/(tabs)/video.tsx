@@ -116,7 +116,6 @@ export default function VideoScreen() {
             data={gridData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            estimatedItemSize={120}
             getItemType={(item) => item.type}
             showsVerticalScrollIndicator={true}
             refreshControl={
