@@ -9,7 +9,7 @@ export default function TabLayout() {
   const themeMode = useThemeStore((state) => state.themeMode);
   const insets = useSafeAreaInsets();
 
-  const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
+  const isDark = themeMode === 'dark';
   const brandPrimary = isDark ? '#3b82f6' : '#2563eb';
   const textTertiary = isDark ? '#71717a' : '#a1a1aa';
 
