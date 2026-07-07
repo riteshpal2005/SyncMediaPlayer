@@ -136,17 +136,17 @@ export default function AudioPlayerOverlay({ player }: Props) {
       if (activeAxis.value === 'y') {
         if (translateY.value > 150 || event.velocityY > 500) {
           translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
-            scheduleOnRN(minimizePlayer)();
+            scheduleOnRN(minimizePlayer);
           });
         } else {
           translateY.value = withTiming(0, { duration: 300 });
         }
       } else if (activeAxis.value === 'x') {
         if (translateX.value > 100 || event.velocityX > 500) {
-          scheduleOnRN(handlePrev)();
+          scheduleOnRN(handlePrev);
           translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
         } else if (translateX.value < -100 || event.velocityX < -500) {
-          scheduleOnRN(nextTrack)();
+          scheduleOnRN(nextTrack);
           translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
         } else {
           translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
