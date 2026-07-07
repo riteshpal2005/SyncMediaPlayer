@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, StyleSheet, Dimensions, Platform, Modal } from 'react-native';
+import { View, Text, Pressable, Dimensions, Platform, Modal } from 'react-native';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
@@ -97,11 +97,11 @@ export default function AudioPlayerOverlay({ player }: Props) {
   const translateY = useSharedValue(0);
   const activeAxis = useSharedValue<'x' | 'y' | null>(null);
 
-  // Smooth entrance animation when expanded
+  // Smooth entrance animation without bounce
   useEffect(() => {
     if (isExpanded) {
       translateY.value = SCREEN_HEIGHT;
-      translateY.value = withSpring(0, { damping: 25, stiffness: 200 });
+      translateY.value = withTiming(0, { duration: 300 });
       translateX.value = 0;
     }
   }, [isExpanded, translateY, translateX]);
@@ -139,7 +139,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
             runOnJS(minimizePlayer)();
           });
         } else {
-          translateY.value = withSpring(0, { damping: 20, stiffness: 200 });
+          translateY.value = withTiming(0, { duration: 300 });
         }
       } else if (activeAxis.value === 'x') {
         if (translateX.value > 100 || event.velocityX > 500) {
@@ -167,25 +167,25 @@ export default function AudioPlayerOverlay({ player }: Props) {
   // ----- MINIMIZED DOCK UI -----
   if (!isExpanded) {
     return (
-      <View style={styles.dockContainer}>
+      <View className="absolute bottom-0 left-0 right-0 h-16 bg-slate-800 flex-row items-center rounded-t-2xl border-t border-x border-slate-700 overflow-hidden z-50">
         <Pressable 
-          style={styles.dockContent} 
+          className="flex-1 flex-row items-center px-4 h-full"
           onPress={() => setPlayerExpanded(true)}
         >
-          <View style={styles.dockIcon}>
+          <View className="w-9 h-9 bg-blue-500 rounded-lg justify-center items-center mr-3">
             <Ionicons name="musical-note" size={20} color="white" />
           </View>
-          <View style={styles.dockInfo}>
-            <Text style={styles.dockTitle} numberOfLines={1}>{currentAudio.filename}</Text>
+          <View className="flex-1 justify-center">
+            <Text className="text-white text-sm font-semibold" numberOfLines={1}>{currentAudio.filename}</Text>
           </View>
         </Pressable>
         
-        <View style={styles.dockControls}>
-          <Pressable style={styles.dockButton} onPress={handlePrev}>
+        <View className="flex-row items-center pr-2.5">
+          <Pressable className="p-2.5" onPress={handlePrev}>
             <Ionicons name="play-skip-back" size={24} color="white" />
           </Pressable>
           <Pressable 
-            style={styles.dockButton}
+            className="p-2.5"
             onPress={() => {
               if (player) {
                 if (player.playing) player.pause();
@@ -195,16 +195,17 @@ export default function AudioPlayerOverlay({ player }: Props) {
           >
             <Ionicons name={player?.playing ? "pause" : "play"} size={28} color="white" />
           </Pressable>
-          <Pressable style={styles.dockButton} onPress={nextTrack}>
+          <Pressable className="p-2.5" onPress={nextTrack}>
             <Ionicons name="play-skip-forward" size={24} color="white" />
           </Pressable>
         </View>
 
         {/* Progress Bar overlay on dock */}
         {duration > 0 && (
-          <View style={styles.dockProgressBg}>
+          <View className="absolute bottom-0 left-0 right-0 h-[3px] bg-transparent">
             <View 
-              style={[styles.dockProgressFill, { width: `${(currentTime / duration) * 100}%` }]} 
+              className="h-full bg-blue-500"
+              style={{ width: `${(currentTime / duration) * 100}%` }} 
             />
           </View>
         )}
@@ -222,33 +223,33 @@ export default function AudioPlayerOverlay({ player }: Props) {
     >
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
         <GestureDetector gesture={panGesture}>
-          <Animated.View style={[StyleSheet.absoluteFill, styles.fullContainer, animatedStyle]}>
+          <Animated.View className="absolute inset-0 bg-slate-950 z-[100]" style={animatedStyle}>
       
-      <View style={styles.topBar}>
-        <Pressable onPress={() => setPlayerExpanded(false)} style={styles.iconButton}>
+      <View className="flex-row items-center justify-between px-5 mb-5" style={{ marginTop: Platform.OS === 'ios' ? 50 : 20 }}>
+        <Pressable onPress={() => setPlayerExpanded(false)} className="p-2.5">
           <Ionicons name="chevron-down" size={32} color="white" />
         </Pressable>
-        <Text style={styles.topBarTitle}>Now Playing</Text>
+        <Text className="text-white text-sm font-semibold tracking-widest uppercase">Now Playing</Text>
         <View style={{ width: 32 }} />
       </View>
 
-      <View style={styles.coverArtContainer}>
-        <View style={styles.coverArtPlaceholder}>
+      <View className="flex-1 justify-center items-center px-10">
+        <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
           <Ionicons name="musical-notes" size={100} color="#3b82f6" />
         </View>
       </View>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.title} numberOfLines={2}>
+      <View className="px-[30px] mb-[30px] items-center">
+        <Text className="text-white text-2xl font-bold text-center mb-2" numberOfLines={2}>
           {currentAudio.filename}
         </Text>
-        <Text style={styles.subtitle}>Unknown Artist</Text>
+        <Text className="text-slate-400 text-base font-medium">Unknown Artist</Text>
       </View>
 
-      <View style={styles.controlsContainer}>
-        <View style={styles.sliderContainer}>
+      <View className="px-[30px] pb-[50px]">
+        <View className="mb-[30px]">
           <Slider
-            style={styles.slider}
+            style={{ width: '100%', height: 40 }}
             minimumValue={0}
             maximumValue={Math.max(1, duration)}
             value={currentTime}
@@ -259,23 +260,23 @@ export default function AudioPlayerOverlay({ player }: Props) {
               if (player) player.currentTime = val;
             }}
           />
-          <View style={styles.timeRow}>
-            <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
-            <Text style={styles.timeText}>{formatTime(duration)}</Text>
+          <View className="flex-row justify-between px-[15px] -mt-2.5">
+            <Text className="text-slate-400 text-xs tabular-nums">{formatTime(currentTime)}</Text>
+            <Text className="text-slate-400 text-xs tabular-nums">{formatTime(duration)}</Text>
           </View>
         </View>
 
-        <View style={styles.mainControls}>
-          <Pressable onPress={toggleLoopMode} style={styles.iconButton}>
+        <View className="flex-row justify-between items-center">
+          <Pressable onPress={toggleLoopMode} className="p-2.5">
             <MaterialIcons name={getLoopIcon()} size={28} color={getLoopColor()} />
           </Pressable>
 
-          <Pressable onPress={handlePrev} style={styles.iconButton}>
+          <Pressable onPress={handlePrev} className="p-2.5">
             <Ionicons name="play-skip-back" size={40} color="white" />
           </Pressable>
 
           <Pressable 
-            style={styles.playPauseButton}
+            className="w-[72px] h-[72px] bg-white rounded-full justify-center items-center shadow-lg shadow-blue-500/50 elevation-10"
             onPress={() => {
               if (player) {
                 if (player.playing) player.pause();
@@ -286,11 +287,11 @@ export default function AudioPlayerOverlay({ player }: Props) {
             <Ionicons name={player?.playing ? "pause" : "play"} size={44} color="black" style={{ marginLeft: player?.playing ? 0 : 4 }} />
           </Pressable>
 
-          <Pressable onPress={nextTrack} style={styles.iconButton}>
+          <Pressable onPress={nextTrack} className="p-2.5">
             <Ionicons name="play-skip-forward" size={40} color="white" />
           </Pressable>
 
-          <Pressable style={styles.iconButton}>
+          <Pressable className="p-2.5">
             <Ionicons name="shuffle" size={28} color="#94a3b8" />
           </Pressable>
         </View>
@@ -301,169 +302,3 @@ export default function AudioPlayerOverlay({ player }: Props) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  fullContainer: {
-    backgroundColor: '#0f172a', // slate-950
-    zIndex: 100,
-    elevation: 100,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginTop: Platform.OS === 'ios' ? 50 : 20,
-    marginBottom: 20,
-  },
-  topBarTitle: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  iconButton: {
-    padding: 10,
-  },
-  coverArtContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-  },
-  coverArtPlaceholder: {
-    width: '100%',
-    aspectRatio: 1,
-    backgroundColor: '#1e293b', // slate-800
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  infoContainer: {
-    paddingHorizontal: 30,
-    marginBottom: 30,
-    alignItems: 'center',
-  },
-  title: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: '#94a3b8',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  controlsContainer: {
-    paddingHorizontal: 30,
-    paddingBottom: 50,
-  },
-  sliderContainer: {
-    marginBottom: 30,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
-  timeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    marginTop: -10,
-  },
-  timeText: {
-    color: '#94a3b8',
-    fontSize: 12,
-    fontVariant: ['tabular-nums'],
-  },
-  mainControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  playPauseButton: {
-    width: 72,
-    height: 72,
-    backgroundColor: 'white',
-    borderRadius: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    elevation: 10,
-  },
-  
-  // DOCK STYLES
-  dockContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 64,
-    backgroundColor: '#1e293b',
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderWidth: 1,
-    borderColor: '#334155',
-    borderBottomWidth: 0,
-    overflow: 'hidden',
-    zIndex: 50,
-  },
-  dockContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    height: '100%',
-  },
-  dockIcon: {
-    width: 36,
-    height: 36,
-    backgroundColor: '#3b82f6',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  dockInfo: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  dockTitle: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  dockControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 10,
-  },
-  dockButton: {
-    padding: 10,
-  },
-  dockProgressBg: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: 'transparent',
-  },
-  dockProgressFill: {
-    height: '100%',
-    backgroundColor: '#3b82f6',
-  }
-});
