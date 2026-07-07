@@ -119,26 +119,22 @@ export default function AudioPlayerScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Hidden VideoView to mount the player engine */}
       <VideoView style={styles.hiddenVideo} player={player} nativeControls={false} />
 
-      {/* Top Bar */}
       <View style={styles.topBar}>
         <Pressable onPress={() => router.back()} style={styles.iconButton}>
           <Ionicons name="chevron-down" size={32} color="white" />
         </Pressable>
         <Text style={styles.topBarTitle}>Now Playing</Text>
-        <View style={{ width: 32 }} /> {/* Spacer */}
+        <View style={{ width: 32 }} />
       </View>
 
-      {/* Cover Art Area */}
       <View style={styles.coverArtContainer}>
         <View style={styles.coverArtPlaceholder}>
           <Ionicons name="musical-notes" size={100} color="#3b82f6" />
         </View>
       </View>
 
-      {/* Title & Info */}
       <View style={styles.infoContainer}>
         <Text style={styles.title} numberOfLines={2}>
           {currentAudio.filename}
@@ -146,9 +142,7 @@ export default function AudioPlayerScreen() {
         <Text style={styles.subtitle}>Unknown Artist</Text>
       </View>
 
-      {/* Progress & Controls */}
       <View style={styles.controlsContainer}>
-        {/* Progress Slider */}
         <View style={styles.sliderContainer}>
           <Slider
             style={styles.slider}
@@ -168,7 +162,6 @@ export default function AudioPlayerScreen() {
           </View>
         </View>
 
-        {/* Main Controls */}
         <View style={styles.mainControls}>
           <Pressable onPress={toggleLoopMode} style={styles.iconButton}>
             <MaterialIcons name={getLoopIcon()} size={28} color={getLoopColor()} />
