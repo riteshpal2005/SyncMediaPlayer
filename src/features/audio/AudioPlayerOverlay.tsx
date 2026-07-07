@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, StyleSheet, Dimensions, Platform } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Pressable, StyleSheet, Dimensions, Platform, Modal, PanResponder } from 'react-native';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -90,6 +90,26 @@ export default function AudioPlayerOverlay({ player }: Props) {
     prevTrack();
   };
 
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        return Math.abs(gestureState.dx) > 20 || Math.abs(gestureState.dy) > 20;
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (gestureState.dy > 100) {
+          // Swipe down to minimize
+          setPlayerExpanded(false);
+        } else if (gestureState.dx > 50) {
+          // Swipe right for previous
+          handlePrev();
+        } else if (gestureState.dx < -50) {
+          // Swipe left for next
+          nextTrack();
+        }
+      },
+    })
+  ).current;
+
   // ----- MINIMIZED DOCK UI -----
   if (!isExpanded) {
     return (
@@ -107,6 +127,9 @@ export default function AudioPlayerOverlay({ player }: Props) {
         </Pressable>
         
         <View style={styles.dockControls}>
+          <Pressable style={styles.dockButton} onPress={handlePrev}>
+            <Ionicons name="play-skip-back" size={24} color="white" />
+          </Pressable>
           <Pressable 
             style={styles.dockButton}
             onPress={() => {
@@ -137,7 +160,16 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
   // ----- FULLSCREEN MODAL UI -----
   return (
-    <View style={[StyleSheet.absoluteFill, styles.fullContainer]}>
+    <Modal
+      visible={true}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={() => setPlayerExpanded(false)}
+    >
+      <View 
+        style={[StyleSheet.absoluteFill, styles.fullContainer]}
+        {...panResponder.panHandlers}
+      >
       
       <View style={styles.topBar}>
         <Pressable onPress={() => setPlayerExpanded(false)} style={styles.iconButton}>
@@ -211,6 +243,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
         </View>
       </View>
     </View>
+    </Modal>
   );
 }
 
