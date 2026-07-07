@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
 import { AudioAsset } from '../services/audioScanner';
+import { useAudioStore } from '../store/useAudioStore';
 
 interface Props {
   audio: AudioAsset;
@@ -20,11 +20,10 @@ function formatDuration(seconds: number) {
 }
 
 export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
+  const playTrack = useAudioStore((state) => state.playTrack);
+
   const handlePress = () => {
-    router.push({
-      pathname: '/audio-player',
-      params: { id: audio.id }
-    });
+    playTrack(audio.id);
   };
 
   return (

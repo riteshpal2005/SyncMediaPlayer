@@ -1,11 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { useVideoPlayer, VideoView } from 'expo-video';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Pressable, StyleSheet, Dimensions, Platform } from 'react-native';
+import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useAudioStore } from '../../shared/store/useAudioStore';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+interface Props {
+  player: VideoPlayer | null;
+}
 
 const formatTime = (seconds: number) => {
   if (isNaN(seconds) || seconds < 0) return '0:00';
@@ -14,34 +19,27 @@ const formatTime = (seconds: number) => {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 };
 
-type LoopMode = 'off' | 'all' | 'one';
-
-export default function AudioPlayerScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+export default function AudioPlayerOverlay({ player }: Props) {
+  const currentTrackId = useAudioStore((state) => state.currentTrackId);
+  const isExpanded = useAudioStore((state) => state.isPlayerExpanded);
+  const loopMode = useAudioStore((state) => state.loopMode);
   const audioAssets = useAudioStore((state) => state.audioAssets);
   
-  const initialIndex = audioAssets.findIndex(a => a.id === id);
-  const [currentIndex, setCurrentIndex] = useState(initialIndex >= 0 ? initialIndex : 0);
-  
-  const currentAudio = audioAssets[currentIndex];
-  
+  const { setPlayerExpanded, setLoopMode, nextTrack, prevTrack } = useAudioStore();
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [loopMode, setLoopMode] = useState<LoopMode>('off');
-  
-  const player = useVideoPlayer(currentAudio?.uri || '', player => {
-    player.loop = loopMode === 'one';
-    player.play();
-  });
 
-  // Update loop on player instance when loopMode changes
+  const currentAudio = audioAssets.find(a => a.id === currentTrackId);
+
+  // Update loop mode in player engine
   useEffect(() => {
     if (player) {
       player.loop = loopMode === 'one';
     }
   }, [loopMode, player]);
 
-  // Monitor progress and handle auto-next
+  // Sync state manually from player to React state (for slider and display)
   useEffect(() => {
     if (!player) return;
     
@@ -55,74 +53,94 @@ export default function AudioPlayerScreen() {
       // Auto-next logic when track finishes
       if (dur > 0 && !player.playing && Math.abs(current - dur) < 0.5) {
         if (loopMode === 'one') {
-          // Handled natively by player.loop = true, but just in case
           player.currentTime = 0;
           player.play();
         } else {
-          handleNext();
+          nextTrack();
         }
       }
     }, 500);
     
     return () => clearInterval(interval);
-  }, [player, loopMode, currentIndex, audioAssets.length]);
+  }, [player, loopMode, nextTrack]);
 
-  const handleNext = () => {
-    if (currentIndex < audioAssets.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else if (loopMode === 'all') {
-      setCurrentIndex(0); // loop back to start
-    }
-  };
-
-  const handlePrev = () => {
-    // If playing for more than 3 seconds, previous button restarts current track
-    if (currentTime > 3) {
-      if (player) {
-        player.currentTime = 0;
-      }
-      return;
-    }
-    
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    } else if (loopMode === 'all') {
-      setCurrentIndex(audioAssets.length - 1);
-    }
-  };
+  if (!currentTrackId || !currentAudio) return null;
 
   const toggleLoopMode = () => {
-    setLoopMode(prev => {
-      if (prev === 'off') return 'all';
-      if (prev === 'all') return 'one';
-      return 'off';
-    });
+    if (loopMode === 'off') setLoopMode('all');
+    else if (loopMode === 'all') setLoopMode('one');
+    else setLoopMode('off');
   };
 
   const getLoopIcon = () => {
     if (loopMode === 'one') return 'repeat-one';
     if (loopMode === 'all') return 'repeat-on';
-    return 'repeat'; // off
+    return 'repeat';
   };
 
   const getLoopColor = () => {
     return loopMode === 'off' ? '#94a3b8' : '#3b82f6';
   };
 
-  if (!currentAudio) {
+  const handlePrev = () => {
+    if (currentTime > 3 && player) {
+      player.currentTime = 0;
+      return;
+    }
+    prevTrack();
+  };
+
+  // ----- MINIMIZED DOCK UI -----
+  if (!isExpanded) {
     return (
-      <View style={styles.container}>
-        <Text style={{ color: 'white' }}>Audio not found.</Text>
+      <View style={styles.dockContainer}>
+        <Pressable 
+          style={styles.dockContent} 
+          onPress={() => setPlayerExpanded(true)}
+        >
+          <View style={styles.dockIcon}>
+            <Ionicons name="musical-note" size={20} color="white" />
+          </View>
+          <View style={styles.dockInfo}>
+            <Text style={styles.dockTitle} numberOfLines={1}>{currentAudio.filename}</Text>
+          </View>
+        </Pressable>
+        
+        <View style={styles.dockControls}>
+          <Pressable 
+            style={styles.dockButton}
+            onPress={() => {
+              if (player) {
+                if (player.playing) player.pause();
+                else player.play();
+              }
+            }}
+          >
+            <Ionicons name={player?.playing ? "pause" : "play"} size={28} color="white" />
+          </Pressable>
+          <Pressable style={styles.dockButton} onPress={nextTrack}>
+            <Ionicons name="play-skip-forward" size={24} color="white" />
+          </Pressable>
+        </View>
+
+        {/* Progress Bar overlay on dock */}
+        {duration > 0 && (
+          <View style={styles.dockProgressBg}>
+            <View 
+              style={[styles.dockProgressFill, { width: `${(currentTime / duration) * 100}%` }]} 
+            />
+          </View>
+        )}
       </View>
     );
   }
 
+  // ----- FULLSCREEN MODAL UI -----
   return (
-    <View style={styles.container}>
-      <VideoView style={styles.hiddenVideo} player={player} nativeControls={false} />
-
+    <View style={[StyleSheet.absoluteFill, styles.fullContainer]}>
+      
       <View style={styles.topBar}>
-        <Pressable onPress={() => router.back()} style={styles.iconButton}>
+        <Pressable onPress={() => setPlayerExpanded(false)} style={styles.iconButton}>
           <Ionicons name="chevron-down" size={32} color="white" />
         </Pressable>
         <Text style={styles.topBarTitle}>Now Playing</Text>
@@ -175,18 +193,15 @@ export default function AudioPlayerScreen() {
             style={styles.playPauseButton}
             onPress={() => {
               if (player) {
-                if (player.playing) {
-                  player.pause();
-                } else {
-                  player.play();
-                }
+                if (player.playing) player.pause();
+                else player.play();
               }
             }}
           >
             <Ionicons name={player?.playing ? "pause" : "play"} size={44} color="black" style={{ marginLeft: player?.playing ? 0 : 4 }} />
           </Pressable>
 
-          <Pressable onPress={handleNext} style={styles.iconButton}>
+          <Pressable onPress={nextTrack} style={styles.iconButton}>
             <Ionicons name="play-skip-forward" size={40} color="white" />
           </Pressable>
 
@@ -200,22 +215,17 @@ export default function AudioPlayerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  fullContainer: {
     backgroundColor: '#0f172a', // slate-950
-  },
-  hiddenVideo: {
-    position: 'absolute',
-    width: 1,
-    height: 1,
-    opacity: 0,
+    zIndex: 100,
+    elevation: 100,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginTop: 40,
+    marginTop: Platform.OS === 'ios' ? 50 : 20,
     marginBottom: 20,
   },
   topBarTitle: {
@@ -304,4 +314,68 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 10,
   },
+  
+  // DOCK STYLES
+  dockContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 64,
+    backgroundColor: '#1e293b',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderBottomWidth: 0,
+    overflow: 'hidden',
+    zIndex: 50,
+  },
+  dockContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    height: '100%',
+  },
+  dockIcon: {
+    width: 36,
+    height: 36,
+    backgroundColor: '#3b82f6',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  dockInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  dockTitle: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  dockControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+  },
+  dockButton: {
+    padding: 10,
+  },
+  dockProgressBg: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: 'transparent',
+  },
+  dockProgressFill: {
+    height: '100%',
+    backgroundColor: '#3b82f6',
+  }
 });

@@ -1,18 +1,41 @@
 import React, { useEffect, useCallback } from 'react';
-import { View, Text, RefreshControl } from 'react-native';
+import { View, Text, RefreshControl, StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 import { useAudioStore } from '../../shared/store/useAudioStore';
 import { AudioThumbnailCard } from '../../shared/components/AudioThumbnailCard';
 import { AudioAsset } from '../../shared/services/audioScanner';
+import AudioPlayerOverlay from '../../features/audio/AudioPlayerOverlay';
+import { useVideoPlayer } from 'expo-video';
 
 export default function AudioScreen() {
   const themeMode = useThemeStore((state) => state.themeMode);
   const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
   const iconColor = isDark ? '#94a3b8' : '#64748b';
 
-  const { audioAssets, isLoading, errorMsg, scanAudio, isInitialScanCompleted } = useAudioStore();
+  const { audioAssets, isLoading, errorMsg, scanAudio, isInitialScanCompleted, currentTrackId, loopMode } = useAudioStore();
+
+  const currentAudio = audioAssets.find(a => a.id === currentTrackId);
+
+  // Initialize the video player globally for this screen
+  const player = useVideoPlayer(
+    currentAudio 
+      ? { 
+          uri: currentAudio.uri, 
+          metadata: { 
+            title: currentAudio.filename, 
+            artist: 'Unknown Artist'
+          } 
+        } 
+      : null, 
+    (player) => {
+      player.staysActiveInBackground = true;
+      player.showNowPlayingNotification = true;
+      player.loop = loopMode === 'one';
+      player.play();
+    }
+  );
 
   useEffect(() => {
     scanAudio();
@@ -27,30 +50,30 @@ export default function AudioScreen() {
   };
 
   return (
-    <View className="flex-1 bg-[var(--color-background)]">
+    <View style={styles.container}>
       {errorMsg ? (
-        <View className="flex-1 justify-center items-center px-4">
+        <View style={styles.centerContainer}>
           <Ionicons name="warning-outline" size={48} color="#ef4444" />
-          <Text className="mt-4 text-slate-800 dark:text-slate-200 text-center">
+          <Text style={styles.errorText}>
             {errorMsg}
           </Text>
         </View>
       ) : audioAssets.length === 0 && isInitialScanCompleted ? (
-        <View className="flex-1 justify-center items-center px-4">
+        <View style={styles.centerContainer}>
           <Ionicons name="musical-notes-outline" size={64} color={iconColor} />
-          <Text className="mt-4 text-slate-800 dark:text-slate-200">
+          <Text style={styles.emptyText}>
             No audio files found.
           </Text>
         </View>
       ) : (
-        <View className="flex-1 px-4 mt-4">
+        <View style={styles.listContainer}>
           <FlashList
             data={audioAssets}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            // @ts-ignore
             estimatedItemSize={75}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: currentTrackId ? 80 : 20 }}
             refreshControl={
               <RefreshControl 
                 refreshing={isLoading && isInitialScanCompleted}
@@ -62,6 +85,38 @@ export default function AudioScreen() {
           />
         </View>
       )}
+
+      {/* Audio Player Overlay / Dock */}
+      {currentTrackId && (
+        <AudioPlayerOverlay player={player} />
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'var(--color-background)',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  errorText: {
+    marginTop: 16,
+    color: '#ef4444',
+    textAlign: 'center',
+  },
+  emptyText: {
+    marginTop: 16,
+    color: '#94a3b8', // Use standard slate color if theme variable not directly accessible
+  },
+  listContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    marginTop: 16,
+  }
+});
