@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, StyleSheet, Dimensions, Platform, Modal } from 'react-native';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
+import { runOnJS } from 'react-native-worklets';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -158,7 +159,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
       transform: [
         { translateX: translateX.value },
         { translateY: translateY.value }
-      ],
+      ] as any,
       opacity: translateY.value > 0 ? 1 - (translateY.value / (SCREEN_HEIGHT * 1.5)) : 1
     };
   });
