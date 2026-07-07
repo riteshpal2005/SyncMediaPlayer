@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, Dimensions, Platform, Modal, PanResponder } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Pressable, StyleSheet, Dimensions, Platform, Modal } from 'react-native';
+import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -90,25 +92,76 @@ export default function AudioPlayerOverlay({ player }: Props) {
     prevTrack();
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (evt, gestureState) => {
-        return Math.abs(gestureState.dx) > 20 || Math.abs(gestureState.dy) > 20;
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dy > 100) {
-          // Swipe down to minimize
-          setPlayerExpanded(false);
-        } else if (gestureState.dx > 50) {
-          // Swipe right for previous
-          handlePrev();
-        } else if (gestureState.dx < -50) {
-          // Swipe left for next
-          nextTrack();
-        }
-      },
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const activeAxis = useSharedValue<'x' | 'y' | null>(null);
+
+  // Smooth entrance animation when expanded
+  useEffect(() => {
+    if (isExpanded) {
+      translateY.value = SCREEN_HEIGHT;
+      translateY.value = withSpring(0, { damping: 25, stiffness: 200 });
+      translateX.value = 0;
+    }
+  }, [isExpanded, translateY, translateX]);
+
+  const minimizePlayer = () => {
+    setPlayerExpanded(false);
+  };
+
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      activeAxis.value = null;
     })
-  ).current;
+    .onUpdate((event) => {
+      if (!activeAxis.value) {
+        if (Math.abs(event.translationX) > Math.abs(event.translationY)) {
+          activeAxis.value = 'x';
+        } else {
+          activeAxis.value = 'y';
+        }
+      }
+
+      if (activeAxis.value === 'x') {
+        translateX.value = event.translationX;
+      } else {
+        // Only drag down
+        if (event.translationY > 0) {
+          translateY.value = event.translationY;
+        }
+      }
+    })
+    .onEnd((event) => {
+      if (activeAxis.value === 'y') {
+        if (translateY.value > 150 || event.velocityY > 500) {
+          translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
+            runOnJS(minimizePlayer)();
+          });
+        } else {
+          translateY.value = withSpring(0, { damping: 20, stiffness: 200 });
+        }
+      } else if (activeAxis.value === 'x') {
+        if (translateX.value > 100 || event.velocityX > 500) {
+          runOnJS(handlePrev)();
+          translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
+        } else if (translateX.value < -100 || event.velocityX < -500) {
+          runOnJS(nextTrack)();
+          translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
+        } else {
+          translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
+        }
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: translateX.value },
+        { translateY: translateY.value }
+      ],
+      opacity: translateY.value > 0 ? 1 - (translateY.value / (SCREEN_HEIGHT * 1.5)) : 1
+    };
+  });
 
   // ----- MINIMIZED DOCK UI -----
   if (!isExpanded) {
@@ -162,14 +215,13 @@ export default function AudioPlayerOverlay({ player }: Props) {
   return (
     <Modal
       visible={true}
-      animationType="slide"
-      transparent={false}
-      onRequestClose={() => setPlayerExpanded(false)}
+      animationType="none"
+      transparent={true}
+      onRequestClose={minimizePlayer}
     >
-      <View 
-        style={[StyleSheet.absoluteFill, styles.fullContainer]}
-        {...panResponder.panHandlers}
-      >
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
+        <GestureDetector gesture={panGesture}>
+          <Animated.View style={[StyleSheet.absoluteFill, styles.fullContainer, animatedStyle]}>
       
       <View style={styles.topBar}>
         <Pressable onPress={() => setPlayerExpanded(false)} style={styles.iconButton}>
@@ -242,7 +294,9 @@ export default function AudioPlayerOverlay({ player }: Props) {
           </Pressable>
         </View>
       </View>
-    </View>
+    </Animated.View>
+    </GestureDetector>
+    </GestureHandlerRootView>
     </Modal>
   );
 }
