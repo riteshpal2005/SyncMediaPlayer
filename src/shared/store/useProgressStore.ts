@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { mmkvStorage } from './mmkv-storage';
+import { mmkvProgressStorage } from './mmkv-storage';
 
 export interface VideoProgress {
   currentTime: number;
@@ -43,7 +43,7 @@ export const useProgressStore = create<ProgressState>()(
     }),
     {
       name: 'video-progress-storage',
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: createJSONStorage(() => mmkvProgressStorage),
     }
   )
 );

@@ -18,6 +18,9 @@ export interface VideoGroup {
 }
 
 export async function requestMediaPermissions(): Promise<boolean> {
+  const { status: currentStatus } = await MediaLibrary.getPermissionsAsync();
+  if (currentStatus === 'granted') return true;
+  
   const { status } = await MediaLibrary.requestPermissionsAsync();
   return status === 'granted';
 }
@@ -73,13 +76,14 @@ export async function scanForVideos(): Promise<VideoGroup[]> {
     }
 
     if (albumVideos.length > 0) {
-      // Remove duplicates just in case and sort by creation time
+      // Remove duplicates just in case
       const uniqueVideos = Array.from(new Map(albumVideos.map(item => [item.id, item])).values());
-      uniqueVideos.sort((a, b) => b.creationTime - a.creationTime);
 
-      if (album.title === 'Download' || album.title === 'Movies') {
+      const titleLower = album.title.toLowerCase();
+      if (titleLower === 'download' || titleLower === 'movies' || titleLower.includes('download')) {
         ungroupedVideos.push(...uniqueVideos);
       } else {
+        uniqueVideos.sort((a, b) => b.creationTime - a.creationTime);
         videoGroups.push({
           albumId: album.id,
           albumName: album.title,

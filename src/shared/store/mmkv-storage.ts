@@ -1,24 +1,36 @@
 import { createMMKV } from 'react-native-mmkv/';
 import { StateStorage } from 'zustand/middleware';
 
-export const storage = createMMKV({
+export const themeStorage = createMMKV({
   id: 'app-theme-storage',
-  // If you ever need it down the line, you can throw in your:
-  // encryptionKey: 'your-key',
-  // mode: 'multi-process'
 });
 
+export const progressStorage = createMMKV({
+  id: 'video-progress-storage',
+});
 
-
-export const mmkvStorage: StateStorage = {
+export const mmkvThemeStorage: StateStorage = {
   setItem: (name, value) => {
-    storage.set(name, value);
+    themeStorage.set(name, value);
   },
   getItem: (name) => {
-    const value = storage.getString(name);
+    const value = themeStorage.getString(name);
     return value ?? null;
   },
   removeItem: (name) => {
-    storage.remove(name);
+    themeStorage.remove(name);
+  },
+};
+
+export const mmkvProgressStorage: StateStorage = {
+  setItem: (name, value) => {
+    progressStorage.set(name, value);
+  },
+  getItem: (name) => {
+    const value = progressStorage.getString(name);
+    return value ?? null;
+  },
+  removeItem: (name) => {
+    progressStorage.remove(name);
   },
 };

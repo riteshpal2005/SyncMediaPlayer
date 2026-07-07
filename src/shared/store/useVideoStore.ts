@@ -18,7 +18,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
     const { videoGroups, isInitialScanCompleted } = get();
     
     // Only scan if it's the first time OR if forced refresh
-    if (!forceRefresh && isInitialScanCompleted && videoGroups.length > 0) {
+    if (!forceRefresh && isInitialScanCompleted) {
       return;
     }
 

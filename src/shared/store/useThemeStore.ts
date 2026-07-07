@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Appearance } from 'react-native';
-import { mmkvStorage } from './mmkv-storage';
+import { mmkvThemeStorage } from './mmkv-storage';
 
 type ThemeMode = 'light' | 'dark' | 'system' | 'pitch-black';
 
@@ -41,7 +41,7 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: 'theme-storage',
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: createJSONStorage(() => mmkvThemeStorage),
       
       onRehydrateStorage: () => (state) => {
         if (state) {
