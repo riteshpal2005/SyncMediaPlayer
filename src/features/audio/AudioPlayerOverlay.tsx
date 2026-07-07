@@ -221,6 +221,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
       visible={true}
       animationType="none"
       transparent={true}
+      statusBarTranslucent={true}
       onRequestClose={minimizePlayer}
     >
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
