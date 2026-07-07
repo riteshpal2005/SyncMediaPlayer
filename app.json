@@ -26,7 +26,8 @@
       "package": "dev.ritesh.syncmediaplayer",
       "permissions": [
         "READ_EXTERNAL_STORAGE",
-        "READ_MEDIA_VIDEO"
+        "READ_MEDIA_VIDEO",
+        "POST_NOTIFICATIONS"
       ]
     },
     "web": {

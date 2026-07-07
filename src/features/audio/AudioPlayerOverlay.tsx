@@ -223,7 +223,12 @@ export default function AudioPlayerOverlay({ player }: Props) {
     >
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
         <GestureDetector gesture={panGesture}>
-          <Animated.View className="absolute inset-0 bg-slate-950 z-[100]" style={animatedStyle}>
+          <Animated.View 
+            style={[
+              { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: '#0f172a', zIndex: 100, elevation: 100 }, 
+              animatedStyle
+            ]}
+          >
       
       <View className="flex-row items-center justify-between px-5 mb-5" style={{ marginTop: Platform.OS === 'ios' ? 50 : 20 }}>
         <Pressable onPress={() => setPlayerExpanded(false)} className="p-2.5">
