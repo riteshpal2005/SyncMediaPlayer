@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Dimensions, Platform, Modal } from 'react-native';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
-import { runOnJS } from 'react-native-worklets';
+import { scheduleOnRN } from 'react-native-worklets';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -136,17 +136,17 @@ export default function AudioPlayerOverlay({ player }: Props) {
       if (activeAxis.value === 'y') {
         if (translateY.value > 150 || event.velocityY > 500) {
           translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
-            runOnJS(minimizePlayer)();
+            scheduleOnRN(minimizePlayer)();
           });
         } else {
           translateY.value = withTiming(0, { duration: 300 });
         }
       } else if (activeAxis.value === 'x') {
         if (translateX.value > 100 || event.velocityX > 500) {
-          runOnJS(handlePrev)();
+          scheduleOnRN(handlePrev)();
           translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
         } else if (translateX.value < -100 || event.velocityX < -500) {
-          runOnJS(nextTrack)();
+          scheduleOnRN(nextTrack)();
           translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
         } else {
           translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
