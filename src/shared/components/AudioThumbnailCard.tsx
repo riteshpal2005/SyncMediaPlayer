@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 import { AudioAsset } from '../services/audioScanner';
 
 interface Props {
@@ -20,8 +21,10 @@ function formatDuration(seconds: number) {
 
 export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
   const handlePress = () => {
-    // Playback not implemented yet
-    console.log('Audio pressed:', audio.filename);
+    router.push({
+      pathname: '/audio-player',
+      params: { id: audio.id }
+    });
   };
 
   return (
