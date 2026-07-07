@@ -43,7 +43,12 @@
           "isAccessMediaLocationEnabled": false
         }
       ],
-      "expo-video"
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true
+        }
+      ]
     ]
   }
 }

@@ -71,7 +71,6 @@ export default function AudioScreen() {
             data={audioAssets}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            estimatedItemSize={75}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: currentTrackId ? 80 : 20 }}
             refreshControl={
