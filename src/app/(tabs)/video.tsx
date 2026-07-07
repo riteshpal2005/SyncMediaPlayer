@@ -113,6 +113,7 @@ export default function VideoScreen() {
             data={gridData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
+            // @ts-ignore: estimatedItemSize exists in FlashList but typing fails
             estimatedItemSize={150}
             showsVerticalScrollIndicator={false}
             refreshControl={
