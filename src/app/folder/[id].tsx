@@ -5,6 +5,7 @@ import { FlashList } from '@shopify/flash-list';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useVideoStore } from '../../shared/store/useVideoStore';
 import { VideoThumbnailCard } from '../../shared/components/VideoThumbnailCard';
+import { VideoAsset } from '../../shared/services/mediaScanner';
 
 export default function FolderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -39,7 +40,7 @@ export default function FolderScreen() {
     );
   }
 
-  const renderItem = ({ item }: { item: { id: string; videos: any[] } }) => (
+  const renderItem = ({ item }: { item: { id: string; videos: VideoAsset[] } }) => (
     <View className="flex-row px-2 mb-4">
       {item.videos.map((video) => (
         <View key={video.id} style={{ flex: 1, paddingHorizontal: 4 }}>
@@ -73,6 +74,7 @@ export default function FolderScreen() {
           data={gridData}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
+          estimatedItemSize={150}
           showsVerticalScrollIndicator={false}
         />
       </View>

@@ -7,7 +7,7 @@ import * as DocumentPicker from 'expo-document-picker';
 
 export default function BrowseScreen() {
   const themeMode = useThemeStore((state) => state.themeMode);
-  const isDark = themeMode === 'dark';
+  const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
   const iconColor = isDark ? '#94a3b8' : '#64748b';
 
   const [selectedFile, setSelectedFile] = useState<DocumentPicker.DocumentPickerAsset | null>(null);

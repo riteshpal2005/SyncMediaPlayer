@@ -17,7 +17,7 @@ export function CustomSplashScreen() {
   const themeMode = useThemeStore((state) => state.themeMode);
   const isInitialScanCompleted = useVideoStore((state) => state.isInitialScanCompleted);
   
-  const isDark = themeMode === 'dark';
+  const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
   const bgColor = isDark ? '#0f172a' : '#ffffff';
   const textColor = isDark ? '#f8fafc' : '#0f172a';
   

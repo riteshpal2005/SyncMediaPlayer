@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const FolderCard = React.memo(({ group }: Props) => {
-  const getProgress = useProgressStore((state) => state.getProgress);
+  const progressRecord = useProgressStore((state) => state.progressRecord);
 
   const thumbnailVideo = useMemo(() => {
     if (!group.videos || group.videos.length === 0) return null;
@@ -19,7 +19,7 @@ export const FolderCard = React.memo(({ group }: Props) => {
     let firstIncompleteVideo: VideoAsset | null = null;
 
     for (const video of group.videos) {
-      const progress = getProgress(video.uri);
+      const progress = progressRecord[video.uri];
       if (progress && !progress.completed && progress.currentTime > 0) {
         // First in-progress video found
         inProgressVideo = video;
@@ -40,7 +40,7 @@ export const FolderCard = React.memo(({ group }: Props) => {
     if (firstIncompleteVideo) return firstIncompleteVideo;
     // Priority 3: All complete, default to the first one
     return group.videos[0];
-  }, [group.videos, getProgress]);
+  }, [group.videos, progressRecord]);
 
   const handlePress = () => {
     // Navigate to the new folder screen, passing the albumId
@@ -50,7 +50,7 @@ export const FolderCard = React.memo(({ group }: Props) => {
   if (!thumbnailVideo) return null;
 
   // Compute overall progress bar for the thumbnail video
-  const currentProgress = getProgress(thumbnailVideo.uri);
+  const currentProgress = progressRecord[thumbnailVideo.uri];
   const progressPercent = currentProgress 
     ? Math.min(100, Math.max(0, (currentProgress.currentTime / currentProgress.duration) * 100))
     : 0;
@@ -73,7 +73,7 @@ export const FolderCard = React.memo(({ group }: Props) => {
         </View>
 
         {/* Progress Bar overlay at the very bottom of thumbnail if in progress */}
-        {progressPercent > 0 && progressPercent < 100 && (
+        {progressPercent > 0 && progressPercent <= 100 && (
           <View className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700/50">
             <View 
               className="h-full bg-blue-500" 

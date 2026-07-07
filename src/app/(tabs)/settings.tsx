@@ -5,7 +5,7 @@ import { useThemeStore } from '../../shared/store/useThemeStore';
 
 export default function SettingsScreen() {
   const themeMode = useThemeStore((state) => state.themeMode);
-  const isDark = themeMode === 'dark';
+  const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
   const iconColor = isDark ? '#94a3b8' : '#64748b';
 
   return (

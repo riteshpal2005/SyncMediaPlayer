@@ -6,7 +6,7 @@ import { useThemeStore } from '../../shared/store/useThemeStore';
 import { useVideoStore } from '../../shared/store/useVideoStore';
 import { VideoThumbnailCard } from '../../shared/components/VideoThumbnailCard';
 import { FolderCard } from '../../shared/components/FolderCard';
-import { CustomSplashScreen } from '../../shared/components/CustomSplashScreen';
+
 import { VideoAsset, VideoGroup } from '../../shared/services/mediaScanner';
 
 type GridItem = 
@@ -86,8 +86,6 @@ export default function VideoScreen() {
 
   return (
     <View className="flex-1 bg-[var(--color-background)]">
-      <CustomSplashScreen />
-
       {errorMsg ? (
         <View className="flex-1 justify-center items-center px-4">
           <Ionicons name="warning-outline" size={48} color="#ef4444" />
@@ -115,6 +113,7 @@ export default function VideoScreen() {
             data={gridData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
+            estimatedItemSize={150}
             showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl 

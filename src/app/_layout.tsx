@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack } from 'expo-router';
 import { useThemeStore } from '../shared/store/useThemeStore';
+import { CustomSplashScreen } from '../shared/components/CustomSplashScreen';
 
 export default function RootLayout() {
   const themeMode = useThemeStore((state) => state.themeMode);
@@ -15,6 +16,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: bgColor }}>
       <SafeAreaProvider>
+        <CustomSplashScreen />
         <Stack
           screenOptions={{
             headerShown: true,
