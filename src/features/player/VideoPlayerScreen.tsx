@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Dimensions, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as Brightness from 'expo-brightness';
@@ -12,7 +12,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { StatusBar } from 'expo-status-bar';
 import { useProgressStore } from '../../shared/store/useProgressStore';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 
 const formatTime = (seconds: number) => {
   const h = Math.floor(seconds / 3600);
@@ -25,13 +25,14 @@ const formatTime = (seconds: number) => {
 };
 
 export default function VideoPlayerScreen() {
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const { uri, filename } = useLocalSearchParams<{ uri: string; filename: string }>();
   const [controlsVisible, setControlsVisible] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [showRemainingTime, setShowRemainingTime] = useState(false);
   const [brightness, setBrightness] = useState(0.5);
+  const brightnessRef = useRef(0.5);
   const [isLocked, setIsLocked] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(true);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
@@ -42,16 +43,14 @@ export default function VideoPlayerScreen() {
   const updateProgress = useProgressStore((state) => state.updateProgress);
   const getProgress = useProgressStore((state) => state.getProgress);
   
-  const hasRestoredProgress = useRef(false);
+  const savedProgressRef = useRef(getProgress(uri));
 
   const player = useVideoPlayer(uri, player => {
     player.loop = false;
     // Auto-restore progress on start
-    const savedProgress = getProgress(uri);
-    if (savedProgress && !savedProgress.completed && savedProgress.currentTime > 0) {
-      player.currentTime = savedProgress.currentTime;
+    if (savedProgressRef.current && !savedProgressRef.current.completed && savedProgressRef.current.currentTime > 0) {
+      player.currentTime = savedProgressRef.current.currentTime;
     }
-    hasRestoredProgress.current = true;
     player.play();
   });
 
@@ -62,6 +61,14 @@ export default function VideoPlayerScreen() {
       setCurrentTime(current);
       
       const dur = player.duration || 0;
+      
+      if (savedProgressRef.current && current === 0 && dur > 0) {
+        // Still seeking to the initial restore point, don't overwrite with 0
+        return;
+      } else if (current > 0) {
+        savedProgressRef.current = undefined; // Restored successfully
+      }
+
       if (dur > 0) {
         setDuration(dur);
         // Persist progress periodically
@@ -93,7 +100,6 @@ export default function VideoPlayerScreen() {
   };
 
   useEffect(() => {
-    resetControlsTimer();
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     
     return () => {
@@ -132,13 +138,14 @@ export default function VideoPlayerScreen() {
     if (isLocked) return;
     resetControlsTimer();
     if (absoluteX < SCREEN_WIDTH / 2) {
-      const newBrightness = Math.max(0, Math.min(1, brightness - (translationY / SCREEN_HEIGHT)));
+      const newBrightness = Math.max(0, Math.min(1, brightnessRef.current - (translationY / SCREEN_HEIGHT)));
       Brightness.setBrightnessAsync(newBrightness);
       setBrightness(newBrightness);
+      brightnessRef.current = newBrightness;
     } else {
       if (player) {
         const currentVol = player.volume;
-        const newVol = Math.max(0, Math.min(1, currentVol - (translationY / SCREEN_HEIGHT) * 0.1));
+        const newVol = Math.max(0, Math.min(1, currentVol - (translationY / SCREEN_HEIGHT)));
         player.volume = newVol;
       }
     }
@@ -149,7 +156,7 @@ export default function VideoPlayerScreen() {
     if (direction === 'left') {
       player.currentTime = Math.max(0, player.currentTime - 5);
     } else {
-      player.currentTime = player.currentTime + 5;
+      player.currentTime = Math.min(player.duration, player.currentTime + 5);
     }
     resetControlsTimer();
   };
@@ -244,10 +251,8 @@ export default function VideoPlayerScreen() {
                 onPress={() => {
                   if (player.playing) {
                     player.pause();
-                    setIsPlaying(false);
                   } else {
                     player.play();
-                    setIsPlaying(true);
                   }
                   resetControlsTimer();
                 }}
@@ -261,45 +266,47 @@ export default function VideoPlayerScreen() {
           )}
 
           {/* Bottom Bar */}
-          {!isLocked && (
-            <View style={styles.bottomBar}>
-              <View style={styles.timeRow}>
-                <Pressable onPress={toggleLock} style={[styles.iconButton, { marginRight: 10 }]}>
-                  <Ionicons name={isLocked ? "lock-closed" : "lock-open"} size={24} color={isLocked ? "#ef4444" : "white"} />
-                </Pressable>
+          <View style={styles.bottomBar}>
+            <View style={styles.timeRow}>
+              <Pressable onPress={toggleLock} style={[styles.iconButton, { marginRight: 10 }]}>
+                <Ionicons name={isLocked ? "lock-closed" : "lock-open"} size={24} color={isLocked ? "#ef4444" : "white"} />
+              </Pressable>
 
-                <Pressable onPress={() => setShowRemainingTime(!showRemainingTime)}>
-                  <Text style={styles.timeText}>
-                    {showRemainingTime ? `-${formatTime(Math.max(0, duration - currentTime))}` : formatTime(currentTime)}
-                  </Text>
-                </Pressable>
-                
-                <Slider
-                  style={styles.slider}
-                  minimumValue={0}
-                  maximumValue={Math.max(1, duration)}
-                  value={currentTime}
-                  minimumTrackTintColor="#3b82f6"
-                  maximumTrackTintColor="rgba(255,255,255,0.3)"
-                  thumbTintColor="#3b82f6"
-                  onSlidingStart={() => {
-                    // Pause controls auto-hide while scrubbing
-                    if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
-                  }}
-                  onSlidingComplete={(val) => {
-                    player.currentTime = val;
-                    resetControlsTimer();
-                  }}
-                />
-                
-                <Text style={styles.timeText}>{formatTime(duration)}</Text>
+              {!isLocked && (
+                <>
+                  <Pressable onPress={() => setShowRemainingTime(!showRemainingTime)}>
+                    <Text style={styles.timeText}>
+                      {showRemainingTime ? `-${formatTime(Math.max(0, duration - currentTime))}` : formatTime(currentTime)}
+                    </Text>
+                  </Pressable>
+                  
+                  <Slider
+                    style={styles.slider}
+                    minimumValue={0}
+                    maximumValue={Math.max(1, duration)}
+                    value={currentTime}
+                    minimumTrackTintColor="#3b82f6"
+                    maximumTrackTintColor="rgba(255,255,255,0.3)"
+                    thumbTintColor="#3b82f6"
+                    onSlidingStart={() => {
+                      // Pause controls auto-hide while scrubbing
+                      if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+                    }}
+                    onSlidingComplete={(val) => {
+                      player.currentTime = val;
+                      resetControlsTimer();
+                    }}
+                  />
+                  
+                  <Text style={styles.timeText}>{formatTime(duration)}</Text>
 
-                <Pressable onPress={toggleFullscreen} style={[styles.iconButton, { marginLeft: 10 }]}>
-                  <Ionicons name={isFullscreen ? "contract" : "expand"} size={24} color="white" />
-                </Pressable>
-              </View>
+                  <Pressable onPress={toggleFullscreen} style={[styles.iconButton, { marginLeft: 10 }]}>
+                    <Ionicons name={isFullscreen ? "contract" : "expand"} size={24} color="white" />
+                  </Pressable>
+                </>
+              )}
             </View>
-          )}
+          </View>
         </View>
       )}
     </View>
