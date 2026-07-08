@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Dimensions, Modal, InteractionManager } from 'react-native';
+import { View, Text, Pressable, Dimensions, Modal } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
@@ -158,9 +158,10 @@ export default function AudioPlayerOverlay({ player }: Props) {
   }, [isExpanded, translateY, translateX]);
 
   const handleModalShow = () => {
-    translateY.value = withTiming(0, { duration: 300 });
-    InteractionManager.runAfterInteractions(() => {
-      setTimeout(() => setIsMountingHeavy(false), 50);
+    translateY.value = withTiming(0, { duration: 300 }, (finished) => {
+      if (finished) {
+        scheduleOnRN(() => setIsMountingHeavy(false));
+      }
     });
   };
 
