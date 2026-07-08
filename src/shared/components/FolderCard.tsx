@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, Pressable, Image } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+
 import { router } from 'expo-router';
 import { VideoGroup, VideoAsset } from '../services/mediaScanner';
 import { useProgressStore } from '../store/useProgressStore';

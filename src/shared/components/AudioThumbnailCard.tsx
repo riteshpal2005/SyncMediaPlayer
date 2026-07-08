@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Music, MoreVertical } from 'lucide-react-native';
 import { AudioAsset } from '../services/audioScanner';
 import { useAudioStore } from '../store/useAudioStore';
 
@@ -33,7 +33,7 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
     >
       {/* Icon Container */}
       <View className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg justify-center items-center mr-4">
-        <Ionicons name="musical-note" size={24} color="#3b82f6" />
+        <Music size={24} color="#3b82f6" />
       </View>
       
       {/* Audio Info */}
@@ -51,7 +51,7 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
 
       {/* Action/Menu Icon (Placeholder) */}
       <View className="px-2">
-        <Ionicons name="ellipsis-vertical" size={20} color="#94a3b8" />
+        <MoreVertical size={20} color="#94a3b8" />
       </View>
     </Pressable>
   );

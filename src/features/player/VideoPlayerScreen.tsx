@@ -7,8 +7,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { scheduleOnRN } from 'react-native-worklets';
 import Slider from '@react-native-community/slider';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { ArrowLeft, Gauge, Subtitles, Music, SkipBack, SkipForward, Play, Pause, Lock, Unlock, Minimize, Maximize } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useProgressStore } from '../../shared/store/useProgressStore';
 
@@ -216,25 +215,25 @@ export default function VideoPlayerScreen() {
           
           <View style={styles.darkGradientOverlay} pointerEvents="none" />
 
-          <View style={styles.topBar}>
-            <View style={styles.topLeft}>
+          <View className="flex-row items-center justify-between px-5 mt-5">
+            <View className="flex-row items-center flex-1">
               <Pressable onPress={() => router.back()} style={styles.iconButton}>
-                <Ionicons name="arrow-back" size={28} color="white" />
+                <ArrowLeft size={28} color="white" />
               </Pressable>
               <Text style={styles.filename} numberOfLines={1}>{filename}</Text>
             </View>
 
             {!isLocked && (
-              <View style={styles.topRight}>
-                <Pressable onPress={cyclePlaybackRate} style={[styles.iconButton, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
-                  <MaterialIcons name="speed" size={24} color="white" />
+              <View className="flex-row items-center gap-4">
+                <Pressable onPress={cyclePlaybackRate} style={[styles.iconButton, { flexDirection: 'row', itemsCenter: 'center', gap: 4 }]}>
+                  <Gauge size={24} color="white" />
                   <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}>{playbackRate}x</Text>
                 </Pressable>
                 <Pressable onPress={() => { setSubtitlesEnabled(!subtitlesEnabled); resetControlsTimer(); }} style={styles.iconButton}>
-                  <MaterialIcons name="closed-caption" size={26} color={subtitlesEnabled ? "#3b82f6" : "white"} />
+                  <Subtitles size={26} color={subtitlesEnabled ? "#3b82f6" : "white"} />
                 </Pressable>
                 <Pressable onPress={() => { resetControlsTimer(); }} style={styles.iconButton}>
-                  <MaterialIcons name="audiotrack" size={24} color="white" />
+                  <Music size={24} color="white" />
                 </Pressable>
               </View>
             )}
@@ -244,7 +243,7 @@ export default function VideoPlayerScreen() {
           {!isLocked && (
             <View style={styles.middleControls}>
               <Pressable style={styles.iconButton}>
-                <Ionicons name="play-skip-back" size={40} color="white" />
+                <SkipBack size={40} color="white" />
               </Pressable>
               <Pressable 
                 style={styles.playPauseButton}
@@ -257,10 +256,10 @@ export default function VideoPlayerScreen() {
                   resetControlsTimer();
                 }}
               >
-                <Ionicons name={player.playing ? "pause" : "play"} size={50} color="white" />
+                {player.playing ? <Pause size={50} color="white" /> : <Play size={50} color="white" />}
               </Pressable>
               <Pressable style={styles.iconButton}>
-                <Ionicons name="play-skip-forward" size={40} color="white" />
+                <SkipForward size={40} color="white" />
               </Pressable>
             </View>
           )}
@@ -269,7 +268,7 @@ export default function VideoPlayerScreen() {
           <View style={styles.bottomBar}>
             <View style={styles.timeRow}>
               <Pressable onPress={toggleLock} style={[styles.iconButton, { marginRight: 10 }]}>
-                <Ionicons name={isLocked ? "lock-closed" : "lock-open"} size={24} color={isLocked ? "#ef4444" : "white"} />
+                {isLocked ? <Lock size={24} color="#ef4444" /> : <Unlock size={24} color="white" />}
               </Pressable>
 
               {!isLocked && (
@@ -301,7 +300,7 @@ export default function VideoPlayerScreen() {
                   <Text style={styles.timeText}>{formatTime(duration)}</Text>
 
                   <Pressable onPress={toggleFullscreen} style={[styles.iconButton, { marginLeft: 10 }]}>
-                    <Ionicons name={isFullscreen ? "contract" : "expand"} size={24} color="white" />
+                    {isFullscreen ? <Minimize size={24} color="white" /> : <Maximize size={24} color="white" />}
                   </Pressable>
                 </>
               )}

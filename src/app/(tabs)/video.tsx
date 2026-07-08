@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { TriangleAlert, Film } from 'lucide-react-native';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 import { useVideoStore } from '../../shared/store/useVideoStore';
 import { VideoThumbnailCard } from '../../shared/components/VideoThumbnailCard';
@@ -88,7 +88,7 @@ export default function VideoScreen() {
     <View className="flex-1 bg-[var(--color-background)]">
       {errorMsg ? (
         <View className="flex-1 justify-center items-center px-4">
-          <Ionicons name="warning-outline" size={48} color="#ef4444" />
+          <TriangleAlert size={48} color="#ef4444" />
           <Text className="mt-4 text-slate-800 dark:text-slate-200 text-center">
             {errorMsg}
           </Text>
@@ -102,7 +102,7 @@ export default function VideoScreen() {
           contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
           refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
         >
-          <Ionicons name="videocam-outline" size={64} color={iconColor} />
+          <Film size={64} color={iconColor} />
           <Text className="mt-4 text-slate-800 dark:text-slate-200">
             No videos found on this device.
           </Text>

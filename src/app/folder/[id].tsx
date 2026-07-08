@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { ArrowLeft } from 'lucide-react-native';
 import { useVideoStore } from '../../shared/store/useVideoStore';
 import { VideoThumbnailCard } from '../../shared/components/VideoThumbnailCard';
 import { VideoAsset } from '../../shared/services/mediaScanner';
@@ -59,7 +59,7 @@ export default function FolderScreen() {
       {/* Header */}
       <View className="flex-row items-center px-4 pt-12 pb-4 bg-slate-100 dark:bg-slate-800">
         <Pressable onPress={() => router.back()} className="p-2 mr-2">
-          <Ionicons name="arrow-back" size={24} color="#3b82f6" />
+          <ArrowLeft size={24} color="#3b82f6" />
         </Pressable>
         <Text className="text-xl font-bold text-slate-900 dark:text-slate-100 flex-1">
           {group.albumName}

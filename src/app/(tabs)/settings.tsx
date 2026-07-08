@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Settings } from 'lucide-react-native';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 
 export default function SettingsScreen() {
@@ -10,7 +10,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Ionicons name="settings-outline" size={64} color={iconColor} />
+      <Settings size={64} color={iconColor} />
       <Text className="mt-4 text-2xl font-bold text-slate-800 dark:text-slate-200">
         Settings
       </Text>

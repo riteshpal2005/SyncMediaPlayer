@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+
 import { router } from 'expo-router';
 import { VideoAsset } from '../services/mediaScanner';
 
