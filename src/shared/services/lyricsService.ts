@@ -1,3 +1,5 @@
+import { cleanAudioTitle } from '../utils/textUtils';
+
 export interface LyricsResponse {
   id: number;
   name: string;
@@ -21,10 +23,8 @@ export async function fetchLyrics(title: string, artist: string = ''): Promise<s
   }
 
   try {
-    // Clean up filename (remove extension and common fluff)
-    let cleanTitle = title.replace(/\.[^/.]+$/, ""); // remove extension
-    // Optionally remove strings like "official video", "lyrics", etc.
-    cleanTitle = cleanTitle.replace(/official|video|lyrics|audio|music/gi, "").trim();
+    // Advanced string cleaning
+    const cleanTitle = cleanAudioTitle(title);
 
     const query = new URLSearchParams({
       q: cleanTitle, // use q for general search which is more forgiving

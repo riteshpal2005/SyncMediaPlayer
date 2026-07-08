@@ -1,3 +1,5 @@
+import { cleanAudioTitle } from '../utils/textUtils';
+
 const albumArtCache = new Map<string, string | null>();
 
 export async function fetchAlbumArt(title: string, artist: string = ''): Promise<string | null> {
@@ -8,9 +10,8 @@ export async function fetchAlbumArt(title: string, artist: string = ''): Promise
   }
 
   try {
-    // Clean up filename for better search results
-    let cleanTitle = title.replace(/\.[^/.]+$/, ""); // remove extension
-    cleanTitle = cleanTitle.replace(/official|video|lyrics|audio|music/gi, "").trim();
+    // Advanced string cleaning
+    const cleanTitle = cleanAudioTitle(title);
 
     const searchTerm = artist && artist !== 'Unknown Artist' 
       ? `${cleanTitle} ${artist}` 
