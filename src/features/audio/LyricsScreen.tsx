@@ -41,7 +41,7 @@ const parseLrc = (lrcString: string): LyricLine[] => {
   return parsed;
 };
 
-const ITEM_HEIGHT = 80; // Larger height for bigger text
+const ITEM_HEIGHT = 110; // Larger height to comfortably fit 2 lines of massive text
 
 export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) => {
   const [lyricsData, setLyricsData] = useState<ParsedLyricsResult | null>(null);
