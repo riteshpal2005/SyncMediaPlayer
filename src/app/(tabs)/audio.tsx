@@ -170,7 +170,6 @@ export default function AudioScreen() {
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             estimatedItemSize={72}
-            maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
             contentContainerStyle={{ paddingBottom: currentTrackId ? 80 : 20 }}
             refreshControl={
               <RefreshControl 

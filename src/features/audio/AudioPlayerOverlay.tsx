@@ -271,6 +271,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
             minimumTrackTintColor="#3b82f6"
             maximumTrackTintColor="#334155"
             thumbTintColor="#3b82f6"
+            tapToSeek={true}
             onSlidingStart={() => {
               isScrubbing.current = true;
             }}

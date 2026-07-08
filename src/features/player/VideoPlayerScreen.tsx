@@ -290,6 +290,7 @@ export default function VideoPlayerScreen() {
                     minimumTrackTintColor="#3b82f6"
                     maximumTrackTintColor="rgba(255,255,255,0.3)"
                     thumbTintColor="#3b82f6"
+                    tapToSeek={true}
                     onSlidingStart={() => {
                       isScrubbing.current = true;
                       // Pause controls auto-hide while scrubbing
