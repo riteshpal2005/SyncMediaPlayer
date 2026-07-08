@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useMemo } from 'react';
+import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react';
 import { View, Text, RefreshControl, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { TriangleAlert, Music, Search } from 'lucide-react-native';
@@ -20,6 +20,8 @@ export default function AudioScreen() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('latest');
 
   const { audioAssets, isLoading, errorMsg, scanAudio, isInitialScanCompleted, currentTrackId, loopMode, favorites } = useAudioStore();
+
+  const listRef = useRef<FlashList<AudioAsset>>(null);
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
 
@@ -94,6 +96,14 @@ export default function AudioScreen() {
     { label: 'Z-A', value: 'za' },
   ];
 
+  const handleSortChange = (newSort: SortOrder) => {
+    setSortOrder(newSort);
+    // Use setTimeout to ensure the list is sorted before scrolling
+    setTimeout(() => {
+      listRef.current?.scrollToOffset({ offset: 0, animated: true });
+    }, 50);
+  };
+
   return (
     <View style={styles.container}>
       {/* Search Bar */}
@@ -116,7 +126,7 @@ export default function AudioScreen() {
           {sortOptions.map((opt) => (
             <TouchableOpacity
               key={opt.value}
-              onPress={() => setSortOrder(opt.value)}
+              onPress={() => handleSortChange(opt.value)}
               className={`px-4 py-1.5 mr-2 rounded-full border ${
                 sortOrder === opt.value
                   ? 'bg-blue-100 border-blue-500 dark:bg-blue-900/40 dark:border-blue-400'
@@ -154,10 +164,13 @@ export default function AudioScreen() {
       ) : (
         <View style={styles.listContainer}>
           <FlashList
+            ref={listRef}
             data={processedAssets}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
+            estimatedItemSize={72}
+            maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
             contentContainerStyle={{ paddingBottom: currentTrackId ? 80 : 20 }}
             refreshControl={
               <RefreshControl 

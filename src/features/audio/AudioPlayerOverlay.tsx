@@ -191,8 +191,14 @@ export default function AudioPlayerOverlay({ player }: Props) {
             className="p-2.5"
             onPress={() => {
               if (player) {
-                if (player.playing) player.pause();
-                else player.play();
+                if (player.playing) {
+                  player.pause();
+                } else {
+                  if (player.currentTime >= (player.duration || 0) - 0.5) {
+                    player.currentTime = 0;
+                  }
+                  player.play();
+                }
               }
             }}
           >
@@ -296,8 +302,14 @@ export default function AudioPlayerOverlay({ player }: Props) {
             className="w-[72px] h-[72px] bg-white rounded-full justify-center items-center shadow-lg shadow-blue-500/50 elevation-10"
             onPress={() => {
               if (player) {
-                if (player.playing) player.pause();
-                else player.play();
+                if (player.playing) {
+                  player.pause();
+                } else {
+                  if (player.currentTime >= (player.duration || 0) - 0.5) {
+                    player.currentTime = 0;
+                  }
+                  player.play();
+                }
               }
             }}
           >
