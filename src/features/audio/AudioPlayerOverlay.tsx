@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Dimensions, Platform, Modal } from 'react-native';
+import { View, Text, Pressable, Dimensions, Platform, Modal, ScrollView } from 'react-native';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -7,8 +7,10 @@ import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import { Music, SkipBack, SkipForward, Play, Pause, ChevronDown, Shuffle, Repeat, Repeat1 } from 'lucide-react-native';
 import { useAudioStore } from '../../shared/store/useAudioStore';
+import { LyricsScreen } from './LyricsScreen';
+import { VisualizerScreen } from './VisualizerScreen';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface Props {
   player: VideoPlayer | null;
@@ -115,45 +117,20 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
   const panGesture = Gesture.Pan()
     .onStart(() => {
-      activeAxis.value = null;
+      activeAxis.value = 'y'; // Force vertical only for closing modal
     })
     .onUpdate((event) => {
-      if (!activeAxis.value) {
-        if (Math.abs(event.translationX) > Math.abs(event.translationY)) {
-          activeAxis.value = 'x';
-        } else {
-          activeAxis.value = 'y';
-        }
-      }
-
-      if (activeAxis.value === 'x') {
-        translateX.value = event.translationX;
-      } else {
-        // Only drag down
-        if (event.translationY > 0) {
-          translateY.value = event.translationY;
-        }
+      if (event.translationY > 0) {
+        translateY.value = event.translationY;
       }
     })
     .onEnd((event) => {
-      if (activeAxis.value === 'y') {
-        if (translateY.value > 150 || event.velocityY > 500) {
-          translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
-            scheduleOnRN(minimizePlayer);
-          });
-        } else {
-          translateY.value = withTiming(0, { duration: 300 });
-        }
-      } else if (activeAxis.value === 'x') {
-        if (translateX.value > 100 || event.velocityX > 500) {
-          scheduleOnRN(handlePrev);
-          translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
-        } else if (translateX.value < -100 || event.velocityX < -500) {
-          scheduleOnRN(nextTrack);
-          translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
-        } else {
-          translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
-        }
+      if (translateY.value > 150 || event.velocityY > 500) {
+        translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
+          scheduleOnRN(minimizePlayer);
+        });
+      } else {
+        translateY.value = withTiming(0, { duration: 300 });
       }
     });
 
@@ -248,18 +225,46 @@ export default function AudioPlayerOverlay({ player }: Props) {
                 <View style={{ width: 32 }} />
               </View>
 
-              <View className="flex-1 justify-center items-center px-10">
-                <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
-                  <Music size={100} color="#3b82f6" />
+              <ScrollView
+                ref={(ref) => {
+                  if (ref) {
+                    // Small delay to ensure layout is measured on Android before scrolling
+                    setTimeout(() => ref.scrollTo({ x: SCREEN_WIDTH, animated: false }), 0);
+                  }
+                }}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                bounces={false}
+                contentOffset={{ x: SCREEN_WIDTH, y: 0 }} // Start on center page (iOS)
+                className="flex-1"
+              >
+                {/* Page 1: Lyrics (Left) */}
+                <View style={{ width: SCREEN_WIDTH }}>
+                  <LyricsScreen title={currentAudio.filename} artist="Unknown Artist" />
                 </View>
-              </View>
 
-              <View className="px-[30px] mb-[30px] items-center">
-                <Text className="text-white text-2xl font-bold text-center mb-2" numberOfLines={2}>
-                  {currentAudio.filename}
-                </Text>
-                <Text className="text-slate-400 text-base font-medium">Unknown Artist</Text>
-              </View>
+                {/* Page 2: Main Album Art (Center) */}
+                <View style={{ width: SCREEN_WIDTH }}>
+                  <View className="flex-1 justify-center items-center px-10">
+                    <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
+                      <Music size={100} color="#3b82f6" />
+                    </View>
+                  </View>
+
+                  <View className="px-[30px] mb-[30px] items-center">
+                    <Text className="text-white text-2xl font-bold text-center mb-2" numberOfLines={2}>
+                      {currentAudio.filename}
+                    </Text>
+                    <Text className="text-slate-400 text-base font-medium">Unknown Artist</Text>
+                  </View>
+                </View>
+
+                {/* Page 3: Visualizer (Right) */}
+                <View style={{ width: SCREEN_WIDTH }}>
+                  <VisualizerScreen isPlaying={!!player?.playing} title={currentAudio.filename} />
+                </View>
+              </ScrollView>
             </View>
           </GestureDetector>
 
