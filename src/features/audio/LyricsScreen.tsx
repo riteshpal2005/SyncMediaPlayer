@@ -131,12 +131,19 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
               index,
             })}
             renderItem={({ item, index }) => {
-              const isActive = index === activeIndex;
+              const distance = Math.abs(index - activeIndex);
+              
+              // Only render previous 1, current, and next 1
+              if (distance > 1) {
+                return <View style={{ height: ITEM_HEIGHT }} />;
+              }
+
+              const isActive = distance === 0;
               return (
                 <Pressable 
                   onPress={() => handleSeek(item.timeMs)}
-                  className="py-3"
-                  style={{ minHeight: ITEM_HEIGHT }}
+                  className="py-3 justify-center"
+                  style={{ height: ITEM_HEIGHT }}
                 >
                   <Text 
                     className={`text-center font-bold text-2xl ${isActive ? 'text-white' : 'text-white/30'}`}
