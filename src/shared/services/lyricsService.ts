@@ -13,9 +13,14 @@ export interface LyricsResponse {
 
 const LRCLIB_API_URL = 'https://lrclib.net/api/search';
 
-const lyricsCache = new Map<string, string | null>();
+export interface ParsedLyricsResult {
+  plainLyrics: string;
+  syncedLyrics: string | null;
+}
 
-export async function fetchLyrics(title: string, artist: string = ''): Promise<string | null> {
+const lyricsCache = new Map<string, ParsedLyricsResult | null>();
+
+export async function fetchLyrics(title: string, artist: string = ''): Promise<ParsedLyricsResult | null> {
   const cacheKey = `${title}-${artist}`.toLowerCase();
   
   if (lyricsCache.has(cacheKey)) {
@@ -41,8 +46,12 @@ export async function fetchLyrics(title: string, artist: string = ''): Promise<s
       // Pick the best match
       const bestMatch = data.find(d => !d.instrumental && d.plainLyrics);
       if (bestMatch && bestMatch.plainLyrics) {
-        lyricsCache.set(cacheKey, bestMatch.plainLyrics);
-        return bestMatch.plainLyrics;
+        const result: ParsedLyricsResult = {
+          plainLyrics: bestMatch.plainLyrics,
+          syncedLyrics: bestMatch.syncedLyrics || null
+        };
+        lyricsCache.set(cacheKey, result);
+        return result;
       }
     }
     

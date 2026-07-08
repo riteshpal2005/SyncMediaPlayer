@@ -260,7 +260,12 @@ export default function AudioPlayerOverlay({ player }: Props) {
               >
                 {/* Page 0: Lyrics (Left) */}
                 <View key="0">
-                  <LyricsScreen title={currentAudio.filename} artist="Unknown Artist" />
+                  <LyricsScreen 
+                    title={currentAudio.filename} 
+                    artist="Unknown Artist" 
+                    currentTime={currentTime}
+                    player={player}
+                  />
                 </View>
 
                 {/* Page 1: Main Album Art (Center) */}
