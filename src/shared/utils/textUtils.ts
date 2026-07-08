@@ -6,10 +6,12 @@ export function cleanAudioTitle(filename: string): string {
   clean = decodeURIComponent(clean);
 
   // 3. Remove content inside brackets [ ] and parentheses ( ) aggressively.
-  // Downloaded MP3s often have [128kbps], (Official Video), (Lyric Video), etc.
-  clean = clean.replace(/\[.*?\]/g, "");
-  clean = clean.replace(/\(.*?\)/g, "");
-  clean = clean.replace(/\{.*?\}/g, "");
+  // Also handles mismatched brackets like [ID} or (ID] which happens with yt-dlp.
+  clean = clean.replace(/[\[\(\{].*?[\]\)\}]/g, "");
+  
+  // 3b. Remove trailing YouTube IDs that might not even have brackets
+  // Youtube IDs are 11 characters (base64) often at the very end before the extension
+  clean = clean.replace(/[-_ ]?[a-zA-Z0-9_-]{11}$/, "");
 
   // 4. Remove common annoying keywords
   const keywords = [
