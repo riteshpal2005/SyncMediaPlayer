@@ -196,6 +196,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
           <View className="flex-1 justify-center">
             <Text className="text-white text-sm font-semibold" numberOfLines={1}>{cleanAudioTitle(currentAudio.filename)}</Text>
           </View>
+          <Text className="text-slate-400 text-xs tabular-nums mr-2">{formatTime(duration)}</Text>
         </Pressable>
         
         <View className="flex-row items-center pr-2.5">
