@@ -116,6 +116,8 @@ export default function AudioPlayerOverlay({ player }: Props) {
   };
 
   const panGesture = Gesture.Pan()
+    .activeOffsetY([-10, 10])
+    .failOffsetX([-10, 10])
     .onStart(() => {
       activeAxis.value = 'y'; // Force vertical only for closing modal
     })
