@@ -20,7 +20,7 @@ type RowItem = {
 
 export default function VideoScreen() {
   const themeMode = useThemeStore((state) => state.themeMode);
-  const isDark = themeMode === 'dark';
+  const isDark = themeMode === 'dark' || themeMode === 'pitch-black';
   const iconColor = isDark ? '#94a3b8' : '#64748b';
 
   const { videoGroups, isLoading, errorMsg, scanVideos, isInitialScanCompleted } = useVideoStore();

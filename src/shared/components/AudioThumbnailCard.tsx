@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Music, MoreVertical, Heart } from 'lucide-react-native';
 import { AudioAsset } from '../services/audioScanner';
 import { useAudioStore } from '../store/useAudioStore';
+import { cleanAudioTitle } from '../utils/textUtils';
 
 interface Props {
   audio: AudioAsset;
@@ -23,6 +24,8 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
   const playTrack = useAudioStore((state) => state.playTrack);
   const toggleFavorite = useAudioStore((state) => state.toggleFavorite);
   const isFavorite = useAudioStore((state) => state.favorites.includes(audio.id));
+  const currentTrackId = useAudioStore((state) => state.currentTrackId);
+  const isCurrentTrack = currentTrackId === audio.id;
 
   const handlePress = () => {
     playTrack(audio.id);
@@ -40,16 +43,24 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
     >
       
       <View className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg justify-center items-center mr-4">
-        <Music size={24} color="#3b82f6" />
+        {isCurrentTrack ? (
+          <View className="flex-row items-end h-4">
+            <View className="w-1 h-3 bg-blue-500 mx-0.5 rounded-full" />
+            <View className="w-1 h-4 bg-blue-500 mx-0.5 rounded-full" />
+            <View className="w-1 h-2 bg-blue-500 mx-0.5 rounded-full" />
+          </View>
+        ) : (
+          <Music size={24} color="#3b82f6" />
+        )}
       </View>
       
       
       <View className="flex-1 justify-center">
         <Text 
-          className="text-base text-slate-900 dark:text-slate-100 font-medium"
+          className={`text-base font-medium ${isCurrentTrack ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-900 dark:text-slate-100'}`}
           numberOfLines={1}
         >
-          {audio.filename}
+          {cleanAudioTitle(audio.filename)}
         </Text>
         <Text className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
           {formatDuration(audio.duration)}
@@ -61,10 +72,9 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
         <Heart size={22} color={isFavorite ? "#ef4444" : "#94a3b8"} fill={isFavorite ? "#ef4444" : "transparent"} />
       </Pressable>
 
-      
-      <View className="pl-1 pr-2">
+      <Pressable className="pl-1 pr-2" hitSlop={10}>
         <MoreVertical size={20} color="#94a3b8" />
-      </View>
+      </Pressable>
     </Pressable>
   );
 });

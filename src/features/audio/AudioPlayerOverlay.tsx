@@ -7,10 +7,11 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import { Music, SkipBack, SkipForward, Play, Pause, ChevronDown, Shuffle, Repeat, Repeat1 } from 'lucide-react-native';
-import { useAudioStore } from '../../shared/store/useAudioStore';
+import { useAudioStore, LoopMode } from '../../shared/store/useAudioStore';
 import { LyricsScreen } from './LyricsScreen';
 import { VisualizerScreen } from './VisualizerScreen';
 import { fetchAlbumArt } from '../../shared/services/albumArtService';
+import { cleanAudioTitle } from '../../shared/utils/textUtils';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -193,7 +194,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
             )}
           </View>
           <View className="flex-1 justify-center">
-            <Text className="text-white text-sm font-semibold" numberOfLines={1}>{currentAudio.filename}</Text>
+            <Text className="text-white text-sm font-semibold" numberOfLines={1}>{cleanAudioTitle(currentAudio.filename)}</Text>
           </View>
         </Pressable>
         
@@ -225,7 +226,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
         
         {duration > 0 && (
-          <View className="absolute bottom-0 left-0 right-0 h-[3px] bg-transparent">
+          <View className="absolute bottom-0 left-0 right-0 h-[3px] bg-slate-700/50">
             <View 
               className="h-full bg-blue-500"
               style={{ width: `${(currentTime / duration) * 100}%` }} 
@@ -270,7 +271,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
                 
                 <View key="0">
                   <LyricsScreen 
-                    title={currentAudio.filename} 
+                    title={cleanAudioTitle(currentAudio.filename)} 
                     artist="Unknown Artist" 
                     currentTime={currentTime}
                     player={player}
@@ -295,7 +296,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
                   <View className="px-[30px] mb-[30px] items-center">
                     <Text className="text-white text-2xl font-bold text-center mb-2" numberOfLines={2}>
-                      {currentAudio.filename}
+                      {cleanAudioTitle(currentAudio.filename)}
                     </Text>
                     <Text className="text-slate-400 text-base font-medium">Unknown Artist</Text>
                   </View>
@@ -303,7 +304,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
                 
                 <View key="2">
-                  <VisualizerScreen isPlaying={!!player?.playing} title={currentAudio.filename} />
+                  <VisualizerScreen isPlaying={!!player?.playing} title={cleanAudioTitle(currentAudio.filename)} />
                 </View>
               </PagerView>
             </View>
@@ -325,7 +326,6 @@ export default function AudioPlayerOverlay({ player }: Props) {
             }}
             onValueChange={(val) => {
               setCurrentTime(val);
-              if (player) player.currentTime = val;
             }}
             onSlidingComplete={(val) => {
               if (player) player.currentTime = val;

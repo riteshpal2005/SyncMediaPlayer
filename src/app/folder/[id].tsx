@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { ArrowLeft } from 'lucide-react-native';
@@ -9,6 +10,7 @@ import { VideoAsset } from '../../shared/services/mediaScanner';
 
 export default function FolderScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
   const { videoGroups } = useVideoStore();
 
   const group = useMemo(() => {
@@ -56,7 +58,10 @@ export default function FolderScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-900">
       
-      <View className="flex-row items-center px-4 pt-12 pb-4 bg-slate-100 dark:bg-slate-800">
+      <View 
+        className="flex-row items-center px-4 pb-4 bg-slate-100 dark:bg-slate-800"
+        style={{ paddingTop: Math.max(insets.top, 16) }}
+      >
         <Pressable onPress={() => router.back()} className="p-2 mr-2">
           <ArrowLeft size={24} color="#3b82f6" />
         </Pressable>
