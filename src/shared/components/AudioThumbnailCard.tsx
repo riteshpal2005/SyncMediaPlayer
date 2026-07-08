@@ -55,7 +55,7 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
       </View>
       
       
-      <View className="flex-1 justify-center">
+      <View className="flex-1 justify-center pr-2">
         <Text 
           className={`text-base font-medium ${isCurrentTrack ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-900 dark:text-slate-100'}`}
           numberOfLines={1}
@@ -63,9 +63,13 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
           {cleanAudioTitle(audio.filename)}
         </Text>
         <Text className="mt-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
-          {formatDuration(audio.duration)}
+          Unknown Artist
         </Text>
       </View>
+
+      <Text className="text-xs text-slate-500 dark:text-slate-400 font-medium px-2">
+        {formatDuration(audio.duration)}
+      </Text>
 
       
       <Pressable onPress={handleFavorite} className="px-2" hitSlop={10}>
