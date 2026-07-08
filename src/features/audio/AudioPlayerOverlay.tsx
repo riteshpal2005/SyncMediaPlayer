@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, Dimensions, Modal, InteractionManager } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
@@ -167,7 +167,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
   const handleMinimize = () => {
     translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, (finished) => {
       if (finished) {
-        runOnJS(setPlayerExpanded)(false);
+        scheduleOnRN(() => setPlayerExpanded(false));
       }
     });
   };
@@ -187,7 +187,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
       if (translateY.value > 150 || event.velocityY > 500) {
         translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, (finished) => {
           if (finished) {
-            runOnJS(setPlayerExpanded)(false);
+            scheduleOnRN(() => setPlayerExpanded(false));
           }
         });
       } else {
