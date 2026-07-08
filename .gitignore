@@ -44,3 +44,4 @@ yarn-error.*
 *.txt
 
 scripts/
+!CHANGELOG.md
