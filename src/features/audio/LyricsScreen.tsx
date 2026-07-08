@@ -41,7 +41,7 @@ const parseLrc = (lrcString: string): LyricLine[] => {
   return parsed;
 };
 
-const ITEM_HEIGHT = 110; // Larger height to comfortably fit 2 lines of massive text
+const ITEM_HEIGHT = 100; // Larger height to comfortably fit 2 lines of massive text
 
 export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) => {
   const [lyricsData, setLyricsData] = useState<ParsedLyricsResult | null>(null);
@@ -110,7 +110,7 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
   };
 
   return (
-    <View className="flex-1 px-[20px] pt-[20px] pb-[120px]">
+    <View className="flex-1 px-[20px] pt-[20px]">
       {loading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#3b82f6" />
