@@ -85,8 +85,11 @@ export default function AudioPlayerOverlay({ player }: Props) {
       if (!isScrubbing.current) {
         setCurrentTime(current);
       }
-      
       const dur = player.duration || 0;
+      if (dur > 0) {
+        setDuration(dur);
+      }
+      
       // Auto-next logic when track finishes
       if (dur > 0 && !player.playing && Math.abs(current - dur) < 0.5) {
         if (!hasAutoAdvancedRef.current) {
