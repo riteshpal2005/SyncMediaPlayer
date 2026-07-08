@@ -9,6 +9,10 @@ export const progressStorage = createMMKV({
   id: 'video-progress-storage',
 });
 
+export const audioStorage = createMMKV({
+  id: 'audio-app-storage',
+});
+
 export const mmkvThemeStorage: StateStorage = {
   setItem: (name, value) => {
     themeStorage.set(name, value);
@@ -32,5 +36,18 @@ export const mmkvProgressStorage: StateStorage = {
   },
   removeItem: (name) => {
     progressStorage.remove(name);
+  },
+};
+
+export const mmkvAudioStorage: StateStorage = {
+  setItem: (name, value) => {
+    audioStorage.set(name, value);
+  },
+  getItem: (name) => {
+    const value = audioStorage.getString(name);
+    return value ?? null;
+  },
+  removeItem: (name) => {
+    audioStorage.remove(name);
   },
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Music, MoreVertical } from 'lucide-react-native';
+import { Music, MoreVertical, Heart } from 'lucide-react-native';
 import { AudioAsset } from '../services/audioScanner';
 import { useAudioStore } from '../store/useAudioStore';
 
@@ -21,9 +21,16 @@ function formatDuration(seconds: number) {
 
 export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
   const playTrack = useAudioStore((state) => state.playTrack);
+  const toggleFavorite = useAudioStore((state) => state.toggleFavorite);
+  const isFavorite = useAudioStore((state) => state.favorites.includes(audio.id));
 
   const handlePress = () => {
     playTrack(audio.id);
+  };
+
+  const handleFavorite = (e: any) => {
+    e.stopPropagation(); // prevent playing track
+    toggleFavorite(audio.id);
   };
 
   return (
@@ -49,8 +56,13 @@ export const AudioThumbnailCard = React.memo(({ audio }: Props) => {
         </Text>
       </View>
 
-      {/* Action/Menu Icon (Placeholder) */}
-      <View className="px-2">
+      {/* Favorite Icon */}
+      <Pressable onPress={handleFavorite} className="px-2" hitSlop={10}>
+        <Heart size={22} color={isFavorite ? "#ef4444" : "#94a3b8"} fill={isFavorite ? "#ef4444" : "transparent"} />
+      </Pressable>
+
+      {/* Action/Menu Icon */}
+      <View className="pl-1 pr-2">
         <MoreVertical size={20} color="#94a3b8" />
       </View>
     </Pressable>
