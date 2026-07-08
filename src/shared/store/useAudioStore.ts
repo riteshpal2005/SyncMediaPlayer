@@ -15,6 +15,7 @@ interface AudioState {
   currentTrackId: string | null;
   isPlayerExpanded: boolean;
   loopMode: LoopMode;
+  isShuffle: boolean;
   
 
   favorites: string[];
@@ -24,6 +25,7 @@ interface AudioState {
   playTrack: (id: string) => void;
   setPlayerExpanded: (expanded: boolean) => void;
   setLoopMode: (mode: LoopMode) => void;
+  toggleShuffle: () => void;
   nextTrack: () => void;
   prevTrack: () => void;
   toggleFavorite: (id: string) => void;
@@ -40,6 +42,7 @@ export const useAudioStore = create<AudioState>()(
       currentTrackId: null,
       isPlayerExpanded: false,
       loopMode: 'off',
+      isShuffle: false,
       
       favorites: [],
 
@@ -81,10 +84,20 @@ export const useAudioStore = create<AudioState>()(
         set({ loopMode: mode });
       },
 
+      toggleShuffle: () => {
+        set((state) => ({ isShuffle: !state.isShuffle }));
+      },
+
       nextTrack: () => {
-        const { currentTrackId, audioAssets, loopMode } = get();
+        const { currentTrackId, audioAssets, loopMode, isShuffle } = get();
         if (!currentTrackId || audioAssets.length === 0) return;
         
+        if (isShuffle) {
+          const randomIndex = Math.floor(Math.random() * audioAssets.length);
+          set({ currentTrackId: audioAssets[randomIndex].id });
+          return;
+        }
+
         const currentIndex = audioAssets.findIndex(a => a.id === currentTrackId);
         if (currentIndex < audioAssets.length - 1) {
           set({ currentTrackId: audioAssets[currentIndex + 1].id });

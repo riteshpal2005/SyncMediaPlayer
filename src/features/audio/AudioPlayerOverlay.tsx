@@ -29,9 +29,10 @@ export default function AudioPlayerOverlay({ player }: Props) {
   const currentTrackId = useAudioStore((state) => state.currentTrackId);
   const isExpanded = useAudioStore((state) => state.isPlayerExpanded);
   const loopMode = useAudioStore((state) => state.loopMode);
+  const isShuffle = useAudioStore((state) => state.isShuffle);
   const audioAssets = useAudioStore((state) => state.audioAssets);
   
-  const { setPlayerExpanded, setLoopMode, nextTrack, prevTrack } = useAudioStore();
+  const { setPlayerExpanded, setLoopMode, toggleShuffle, nextTrack, prevTrack } = useAudioStore();
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -121,8 +122,8 @@ export default function AudioPlayerOverlay({ player }: Props) {
   };
 
   const handlePrev = () => {
-    if (currentTime > 3 && player) {
-      player.currentTime = 0;
+    if (currentTime > 3) {
+      if (player) player.currentTime = 0;
       return;
     }
     prevTrack();
@@ -324,6 +325,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
             }}
             onValueChange={(val) => {
               setCurrentTime(val);
+              if (player) player.currentTime = val;
             }}
             onSlidingComplete={(val) => {
               if (player) player.currentTime = val;
@@ -371,8 +373,8 @@ export default function AudioPlayerOverlay({ player }: Props) {
             <SkipForward size={40} color="white" />
           </Pressable>
 
-          <Pressable className="p-2.5">
-            <Shuffle size={28} color="#94a3b8" />
+          <Pressable onPress={toggleShuffle} className="p-2.5">
+            <Shuffle size={28} color={isShuffle ? "#3b82f6" : "#94a3b8"} />
           </Pressable>
         </View>
       </View>

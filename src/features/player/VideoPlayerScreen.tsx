@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, Dimensions, useWindowDimensions } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Dimensions, useWindowDimensions, ToastAndroid, Platform, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import * as Brightness from 'expo-brightness';
@@ -64,9 +64,11 @@ export default function VideoPlayerScreen() {
       }
       
       const dur = player.duration || 0;
+      if (dur > 0) {
+        setDuration(dur);
+      }
       
       if (savedProgressRef.current && current === 0 && dur > 0) {
-
         return;
       } else if (current > 0) {
         savedProgressRef.current = undefined; // Restored successfully
@@ -80,6 +82,14 @@ export default function VideoPlayerScreen() {
     }, 500);
     return () => clearInterval(interval);
   }, [player, uri, updateProgress]);
+
+  const showNotAvailable = (feature: string) => {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(`${feature} not available`, ToastAndroid.SHORT);
+    } else {
+      Alert.alert('Not Available', `${feature} not available`);
+    }
+  };
 
   const toggleControls = () => {
     setControlsVisible(prev => {
@@ -234,10 +244,10 @@ export default function VideoPlayerScreen() {
                   <Gauge size={24} color="white" />
                   <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}>{playbackRate}x</Text>
                 </Pressable>
-                <Pressable onPress={() => { setSubtitlesEnabled(!subtitlesEnabled); resetControlsTimer(); }} style={styles.iconButton}>
+                <Pressable onPress={() => { setSubtitlesEnabled(!subtitlesEnabled); resetControlsTimer(); showNotAvailable('Subtitles'); }} style={styles.iconButton}>
                   <Subtitles size={26} color={subtitlesEnabled ? "#3b82f6" : "white"} />
                 </Pressable>
-                <Pressable onPress={() => { resetControlsTimer(); }} style={styles.iconButton}>
+                <Pressable onPress={() => { resetControlsTimer(); showNotAvailable('Audio tracks'); }} style={styles.iconButton}>
                   <Music size={24} color="white" />
                 </Pressable>
               </View>

@@ -32,7 +32,7 @@ export async function fetchLyrics(title: string, artist: string = ''): Promise<P
     const cleanTitle = cleanAudioTitle(title);
 
     const query = new URLSearchParams({
-      q: cleanTitle,
+      q: artist && artist !== 'Unknown Artist' ? `${cleanTitle} ${artist}` : cleanTitle,
     });
 
     const response = await fetch(`${LRCLIB_API_URL}?${query.toString()}`);

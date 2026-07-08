@@ -15,7 +15,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   isInitialScanCompleted: false,
   errorMsg: null,
   scanVideos: async (forceRefresh = false) => {
-    const { videoGroups, isInitialScanCompleted } = get();
+    const { isInitialScanCompleted } = get();
     
 
     if (!forceRefresh && isInitialScanCompleted) {

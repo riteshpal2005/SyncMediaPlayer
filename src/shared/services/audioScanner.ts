@@ -37,7 +37,16 @@ export async function scanForAudio(): Promise<AudioAsset[]> {
     const titleLower = album.title.toLowerCase();
     
 
-    if (titleLower !== 'music' && titleLower !== 'download' && !titleLower.includes('download')) {
+    // We want songs from Music, Download, Podcasts, Recordings, etc.
+    if (
+      titleLower !== 'music' && 
+      titleLower !== 'download' && 
+      !titleLower.includes('download') &&
+      !titleLower.includes('podcast') &&
+      !titleLower.includes('recording') &&
+      !titleLower.includes('whatsapp audio') &&
+      !titleLower.includes('audio')
+    ) {
       continue;
     }
 
