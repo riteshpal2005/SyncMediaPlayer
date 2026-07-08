@@ -1,0 +1,12 @@
+<svg width="1024" height="1024" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path 
+    d="M 35 25 L 35 75 L 75 50 Z" 
+    fill="none" 
+    stroke="#ffffff" 
+    stroke-width="12" 
+    stroke-linejoin="round" 
+    stroke-linecap="round"
+    stroke-dasharray="130 70"
+    stroke-dashoffset="-20"
+  />
+</svg>
