@@ -1,12 +1,20 @@
 <svg width="1024" height="1024" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-  <path 
-    d="M 35 25 L 35 75 L 75 50 Z" 
-    fill="none" 
-    stroke="#ffffff" 
-    stroke-width="12" 
-    stroke-linejoin="round" 
-    stroke-linecap="round"
-    stroke-dasharray="130 70"
-    stroke-dashoffset="-20"
-  />
+  <!-- 
+    How to configure the size yourself:
+    Change the `scale(0.6)` value below! 
+    - 0.5 is half size
+    - 1.0 is full size
+  -->
+  <g transform="scale(0.6)" transform-origin="50 50">
+    <path 
+      d="M 35 25 L 35 75 L 75 50 Z" 
+      fill="none" 
+      stroke="#ffffff" 
+      stroke-width="12" 
+      stroke-linejoin="round" 
+      stroke-linecap="round"
+      stroke-dasharray="130 70"
+      stroke-dashoffset="-20"
+    />
+  </g>
 </svg>
