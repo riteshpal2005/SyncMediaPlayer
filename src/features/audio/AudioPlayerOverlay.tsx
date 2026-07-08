@@ -85,6 +85,10 @@ export default function AudioPlayerOverlay({ player }: Props) {
       if (!isScrubbing.current) {
         setCurrentTime(current);
       }
+      if (player.playing !== useAudioStore.getState().isPlaying) {
+        useAudioStore.getState().setIsPlaying(player.playing);
+      }
+
       const dur = player.duration || 0;
       if (dur > 0) {
         setDuration(dur);

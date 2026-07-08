@@ -16,6 +16,7 @@ interface AudioState {
   isPlayerExpanded: boolean;
   loopMode: LoopMode;
   isShuffle: boolean;
+  isPlaying: boolean;
   
 
   favorites: string[];
@@ -25,6 +26,7 @@ interface AudioState {
   playTrack: (id: string) => void;
   setPlayerExpanded: (expanded: boolean) => void;
   setLoopMode: (mode: LoopMode) => void;
+  setIsPlaying: (playing: boolean) => void;
   toggleShuffle: () => void;
   nextTrack: () => void;
   prevTrack: () => void;
@@ -42,6 +44,7 @@ export const useAudioStore = create<AudioState>()(
       currentTrackId: null,
       isPlayerExpanded: false,
       loopMode: 'off',
+      isPlaying: false,
       isShuffle: false,
       
       favorites: [],
@@ -82,6 +85,10 @@ export const useAudioStore = create<AudioState>()(
 
       setLoopMode: (mode: LoopMode) => {
         set({ loopMode: mode });
+      },
+
+      setIsPlaying: (playing: boolean) => {
+        set({ isPlaying: playing });
       },
 
       toggleShuffle: () => {
