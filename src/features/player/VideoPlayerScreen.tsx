@@ -32,6 +32,7 @@ export default function VideoPlayerScreen() {
   const [showRemainingTime, setShowRemainingTime] = useState(false);
   const [brightness, setBrightness] = useState(0.5);
   const brightnessRef = useRef(0.5);
+  const volumeRef = useRef(1.0);
   const [isLocked, setIsLocked] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(true);
   const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
@@ -146,9 +147,10 @@ export default function VideoPlayerScreen() {
       brightnessRef.current = newBrightness;
     } else {
       if (player) {
-        const currentVol = player.volume;
+        const currentVol = volumeRef.current;
         const newVol = Math.max(0, Math.min(1, currentVol - (translationY / SCREEN_HEIGHT)));
         player.volume = newVol;
+        volumeRef.current = newVol;
       }
     }
   };
@@ -245,7 +247,13 @@ export default function VideoPlayerScreen() {
           
           {!isLocked && (
             <View style={styles.middleControls}>
-              <Pressable style={styles.iconButton}>
+              <Pressable 
+                style={styles.iconButton}
+                onPress={() => {
+                  if (player) player.currentTime = Math.max(0, player.currentTime - 10);
+                  resetControlsTimer();
+                }}
+              >
                 <SkipBack size={40} color="white" />
               </Pressable>
               <Pressable 
@@ -261,7 +269,13 @@ export default function VideoPlayerScreen() {
               >
                 {player.playing ? <Pause size={50} color="white" /> : <Play size={50} color="white" />}
               </Pressable>
-              <Pressable style={styles.iconButton}>
+              <Pressable 
+                style={styles.iconButton}
+                onPress={() => {
+                  if (player) player.currentTime = Math.min(player.duration, player.currentTime + 10);
+                  resetControlsTimer();
+                }}
+              >
                 <SkipForward size={40} color="white" />
               </Pressable>
             </View>
@@ -298,7 +312,6 @@ export default function VideoPlayerScreen() {
                     }}
                     onValueChange={(val) => {
                       setCurrentTime(val);
-                      if (player) player.currentTime = val;
                     }}
                     onSlidingComplete={(val) => {
                       if (player) player.currentTime = val;

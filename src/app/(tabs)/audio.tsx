@@ -25,9 +25,8 @@ export default function AudioScreen() {
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
 
-
-  const player = useVideoPlayer(
-    currentAudio 
+  const videoSource = useMemo(() => {
+    return currentAudio 
       ? { 
           uri: currentAudio.uri, 
           metadata: { 
@@ -35,7 +34,11 @@ export default function AudioScreen() {
             artist: 'Unknown Artist'
           } 
         } 
-      : null, 
+      : null;
+  }, [currentAudio]);
+
+  const player = useVideoPlayer(
+    videoSource, 
     (player) => {
       player.staysActiveInBackground = true;
       player.showNowPlayingNotification = true;

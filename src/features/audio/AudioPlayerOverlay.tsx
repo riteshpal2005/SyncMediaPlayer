@@ -37,8 +37,14 @@ export default function AudioPlayerOverlay({ player }: Props) {
   const [duration, setDuration] = useState(0);
   const [albumArt, setAlbumArt] = useState<string | null>(null);
   const isScrubbing = useRef(false);
+  const hasAutoAdvancedRef = useRef(false);
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
+
+  // Reset auto-advance flag when track changes
+  useEffect(() => {
+    hasAutoAdvancedRef.current = false;
+  }, [currentTrackId]);
 
 
   useEffect(() => {
@@ -79,15 +85,17 @@ export default function AudioPlayerOverlay({ player }: Props) {
       }
       
       const dur = player.duration || 0;
-      if (dur > 0) setDuration(dur);
-
-
+      // Auto-next logic when track finishes
       if (dur > 0 && !player.playing && Math.abs(current - dur) < 0.5) {
-        if (loopMode === 'one') {
-          player.currentTime = 0;
-          player.play();
-        } else {
-          nextTrack();
+        if (!hasAutoAdvancedRef.current) {
+          hasAutoAdvancedRef.current = true;
+          if (loopMode === 'one') {
+            player.currentTime = 0;
+            player.play();
+            setTimeout(() => { hasAutoAdvancedRef.current = false; }, 1000);
+          } else {
+            nextTrack();
+          }
         }
       }
     }, 500);
@@ -316,7 +324,6 @@ export default function AudioPlayerOverlay({ player }: Props) {
             }}
             onValueChange={(val) => {
               setCurrentTime(val);
-              if (player) player.currentTime = val;
             }}
             onSlidingComplete={(val) => {
               if (player) player.currentTime = val;

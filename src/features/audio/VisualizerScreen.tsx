@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text } from 'react-native';
 import Animated, { 
   useSharedValue, 
@@ -17,9 +17,53 @@ interface Props {
 
 const NUM_BARS = 48;
 
-export const VisualizerScreen = ({ isPlaying, title }: Props) => {
+const VisualizerBar = React.memo(({ index, isPlaying, numBars }: { index: number, isPlaying: boolean, numBars: number }) => {
+  const barValue = useSharedValue(10);
+  
+  useEffect(() => {
+    if (isPlaying) {
+      const randomDuration = 300 + Math.random() * 400;
+      const randomHeight = 20 + Math.random() * 80;
+      
+      barValue.value = withDelay(
+        index * 30, // cascade effect
+        withRepeat(
+          withSequence(
+            withTiming(randomHeight, { duration: randomDuration, easing: Easing.inOut(Easing.ease) }),
+            withTiming(10, { duration: randomDuration, easing: Easing.inOut(Easing.ease) })
+          ),
+          -1,
+          true
+        )
+      );
+    } else {
+      barValue.value = withTiming(10, { duration: 300 });
+    }
+  }, [isPlaying, index, barValue]);
 
-  const bars = Array.from({ length: NUM_BARS }).map(() => useSharedValue(10));
+  const barStyle = useAnimatedStyle(() => ({
+    height: barValue.value,
+  }));
+
+  const angle = (index * 360) / numBars;
+
+  return (
+    <Animated.View
+      className="absolute w-[4px] bg-blue-400 rounded-full"
+      style={[
+        {
+          transform: [
+            { rotate: `${angle}deg` },
+            { translateY: -100 } // push outward from center
+          ]
+        },
+        barStyle
+      ]}
+    />
+  );
+});
+
+export const VisualizerScreen = ({ isPlaying, title }: Props) => {
   const centerPulse = useSharedValue(1);
 
   useEffect(() => {
@@ -32,35 +76,16 @@ export const VisualizerScreen = ({ isPlaying, title }: Props) => {
         -1,
         true
       );
-
-      bars.forEach((bar, index) => {
-
-        const randomDuration = 300 + Math.random() * 400;
-        const randomHeight = 20 + Math.random() * 80;
-        
-        bar.value = withDelay(
-          index * 30, // cascade effect
-          withRepeat(
-            withSequence(
-              withTiming(randomHeight, { duration: randomDuration, easing: Easing.inOut(Easing.ease) }),
-              withTiming(10, { duration: randomDuration, easing: Easing.inOut(Easing.ease) })
-            ),
-            -1,
-            true
-          )
-        );
-      });
     } else {
       centerPulse.value = withTiming(1, { duration: 300 });
-      bars.forEach(bar => {
-        bar.value = withTiming(10, { duration: 300 });
-      });
     }
-  }, [isPlaying]);
+  }, [isPlaying, centerPulse]);
 
   const centerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: centerPulse.value }],
   }));
+
+  const barIndices = useMemo(() => Array.from({ length: NUM_BARS }).map((_, i) => i), []);
 
   return (
     <View className="flex-1 justify-center items-center px-[30px] pt-[20px] pb-[80px]">
@@ -77,31 +102,10 @@ export const VisualizerScreen = ({ isPlaying, title }: Props) => {
           </View>
         </Animated.View>
 
-        
         <View className="w-[250px] h-[250px] items-center justify-center">
-          {bars.map((bar, i) => {
-            const angle = (i * 360) / NUM_BARS;
-            
-            const barStyle = useAnimatedStyle(() => ({
-              height: bar.value,
-            }));
-
-            return (
-              <Animated.View
-                key={i}
-                className="absolute w-[4px] bg-blue-400 rounded-full"
-                style={[
-                  {
-                    transform: [
-                      { rotate: `${angle}deg` },
-                      { translateY: -100 }
-                    ]
-                  },
-                  barStyle
-                ]}
-              />
-            );
-          })}
+          {barIndices.map((i) => (
+            <VisualizerBar key={i} index={i} isPlaying={isPlaying} numBars={NUM_BARS} />
+          ))}
         </View>
       </View>
 
