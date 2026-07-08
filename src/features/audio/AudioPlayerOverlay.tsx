@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Dimensions, Platform, Modal } from 'react-native';
+import { View, Text, Pressable, Dimensions, Platform, Modal, InteractionManager } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
@@ -40,6 +40,10 @@ export default function AudioPlayerOverlay({ player }: Props) {
   const [albumArt, setAlbumArt] = useState<string | null>(null);
   const isScrubbing = useRef(false);
   const hasAutoAdvancedRef = useRef(false);
+  const [optimisticPlaying, setOptimisticPlaying] = useState<boolean | null>(null);
+  const [isMountingHeavy, setIsMountingHeavy] = useState(true);
+  
+  const isCurrentlyPlaying = optimisticPlaying !== null ? optimisticPlaying : !!player?.playing;
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
 
@@ -87,6 +91,9 @@ export default function AudioPlayerOverlay({ player }: Props) {
       }
       if (player.playing !== useAudioStore.getState().isPlaying) {
         useAudioStore.getState().setIsPlaying(player.playing);
+      }
+      if (optimisticPlaying !== null && player.playing === optimisticPlaying) {
+        setOptimisticPlaying(null);
       }
 
       const dur = player.duration || 0;
@@ -144,9 +151,13 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
   useEffect(() => {
     if (isExpanded) {
+      setIsMountingHeavy(true);
       translateY.value = SCREEN_HEIGHT;
       translateY.value = withTiming(0, { duration: 300 });
       translateX.value = 0;
+      InteractionManager.runAfterInteractions(() => {
+        setTimeout(() => setIsMountingHeavy(false), 50);
+      });
     }
   }, [isExpanded, translateY, translateX]);
 
@@ -185,6 +196,20 @@ export default function AudioPlayerOverlay({ player }: Props) {
     };
   });
 
+  const handlePlayPause = () => {
+    if (!player) return;
+    const newPlaying = !(optimisticPlaying !== null ? optimisticPlaying : player.playing);
+    setOptimisticPlaying(newPlaying);
+    if (newPlaying) {
+      if (player.currentTime >= (player.duration || 0) - 0.5) {
+        player.currentTime = 0;
+      }
+      player.play();
+    } else {
+      player.pause();
+    }
+  };
+
 
   if (!isExpanded) {
     return (
@@ -211,20 +236,9 @@ export default function AudioPlayerOverlay({ player }: Props) {
           </Pressable>
           <Pressable 
             className="p-2.5"
-            onPress={() => {
-              if (player) {
-                if (player.playing) {
-                  player.pause();
-                } else {
-                  if (player.currentTime >= (player.duration || 0) - 0.5) {
-                    player.currentTime = 0;
-                  }
-                  player.play();
-                }
-              }
-            }}
+            onPress={handlePlayPause}
           >
-            {player?.playing ? <Pause size={28} color="white" /> : <Play size={28} color="white" />}
+            {isCurrentlyPlaying ? <Pause size={28} color="white" /> : <Play size={28} color="white" />}
           </Pressable>
           <Pressable className="p-2.5" onPress={nextTrack}>
             <SkipForward size={24} color="white" />
@@ -277,12 +291,14 @@ export default function AudioPlayerOverlay({ player }: Props) {
               >
                 
                 <View key="0">
-                  <LyricsScreen 
-                    title={cleanAudioTitle(currentAudio.filename)} 
-                    artist="Unknown Artist" 
-                    currentTime={currentTime}
-                    player={player}
-                  />
+                  {!isMountingHeavy && (
+                    <LyricsScreen 
+                      title={cleanAudioTitle(currentAudio.filename)} 
+                      artist="Unknown Artist" 
+                      currentTime={currentTime}
+                      player={player}
+                    />
+                  )}
                 </View>
 
                 
@@ -311,7 +327,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
                 
                 <View key="2">
-                  <VisualizerScreen isPlaying={!!player?.playing} title={cleanAudioTitle(currentAudio.filename)} />
+                  {!isMountingHeavy && <VisualizerScreen isPlaying={isCurrentlyPlaying} title={cleanAudioTitle(currentAudio.filename)} />}
                 </View>
               </PagerView>
             </View>
@@ -354,20 +370,9 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
           <Pressable 
             className="w-[72px] h-[72px] bg-white rounded-full justify-center items-center shadow-lg shadow-blue-500/50 elevation-10"
-            onPress={() => {
-              if (player) {
-                if (player.playing) {
-                  player.pause();
-                } else {
-                  if (player.currentTime >= (player.duration || 0) - 0.5) {
-                    player.currentTime = 0;
-                  }
-                  player.play();
-                }
-              }
-            }}
+            onPress={handlePlayPause}
           >
-            {player?.playing ? (
+            {isCurrentlyPlaying ? (
               <Pause size={44} color="black" />
             ) : (
               <Play size={44} color="black" style={{ marginLeft: 4 }} />
