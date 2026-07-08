@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Animated, { 
   useSharedValue, 
@@ -59,7 +59,10 @@ export function CustomSplashScreen() {
   if (!isVisible) return null;
 
   return (
-    <Animated.View style={[styles.container, { backgroundColor: bgColor }, containerStyle]}>
+    <Animated.View 
+      className="absolute inset-0 justify-center items-center z-[999]" 
+      style={[{ backgroundColor: bgColor }, containerStyle]}
+    >
       <Svg width={150} height={150} viewBox="0 0 100 100">
         <AnimatedPath
           d="M 35 25 L 35 75 L 75 50 Z"
@@ -72,21 +75,8 @@ export function CustomSplashScreen() {
           animatedProps={animatedProps}
         />
       </Svg>
-      <Text  className="" style={[styles.title, { color: textColor }]}>Sync Media Player</Text>
+      <Text className="text-[28px] font-bold mt-5" style={{ color: textColor }}>Sync Media Player</Text>
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 999,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginTop: 20,
-  }
-});
