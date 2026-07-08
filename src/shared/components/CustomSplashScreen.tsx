@@ -72,7 +72,7 @@ export function CustomSplashScreen() {
           animatedProps={animatedProps}
         />
       </Svg>
-      <Text style={[styles.title, { color: textColor }]}>Sync Media Player</Text>
+      <Text  className="" style={[styles.title, { color: textColor }]}>Sync Media Player</Text>
     </Animated.View>
   );
 }
