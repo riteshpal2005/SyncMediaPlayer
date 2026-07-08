@@ -3,7 +3,6 @@ import { View, Text, Pressable, Dimensions, Platform, Modal } from 'react-native
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -30,7 +29,6 @@ export default function AudioPlayerOverlay({ player }: Props) {
   const audioAssets = useAudioStore((state) => state.audioAssets);
   
   const { setPlayerExpanded, setLoopMode, nextTrack, prevTrack } = useAudioStore();
-  const insets = useSafeAreaInsets();
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -228,7 +226,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
         <GestureDetector gesture={panGesture}>
           <Animated.View 
             style={[
-              { position: 'absolute', top: insets.top, bottom: 0, left: 0, right: 0, backgroundColor: '#0f172a', zIndex: 100, elevation: 100, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: 'hidden' }, 
+              { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: '#0f172a', paddingTop: 24, zIndex: 100, elevation: 100 }, 
               animatedStyle
             ]}
           >
