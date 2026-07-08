@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { MaterialTopTabs } from '../../shared/components/MaterialTopTabs';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Film, Music, Folder, Settings, LucideIcon, Video } from 'lucide-react-native';
+import { Music, Folder, Settings, LucideIcon, Video } from 'lucide-react-native';
 
 export default function TabLayout() {
   const themeMode = useThemeStore((state) => state.themeMode);
@@ -32,9 +32,6 @@ export default function TabLayout() {
       id="media-bottom-tabs"
       tabBarPosition="bottom"
       screenOptions={{
-        swipeEnabled: false,
-        animationEnabled: false,
-        lazy: true,
         sceneStyle: {
           backgroundColor: bgColor,
         },

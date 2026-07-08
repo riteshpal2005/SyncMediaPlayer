@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Dimensions, Platform, Modal, InteractionManager } from 'react-native';
+import { View, Text, Pressable, Dimensions, Modal, InteractionManager } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
@@ -153,16 +153,23 @@ export default function AudioPlayerOverlay({ player }: Props) {
     if (isExpanded) {
       setIsMountingHeavy(true);
       translateY.value = SCREEN_HEIGHT;
-      translateY.value = withTiming(0, { duration: 300 });
       translateX.value = 0;
-      InteractionManager.runAfterInteractions(() => {
-        setTimeout(() => setIsMountingHeavy(false), 50);
-      });
     }
   }, [isExpanded, translateY, translateX]);
 
-  const minimizePlayer = () => {
-    setPlayerExpanded(false);
+  const handleModalShow = () => {
+    translateY.value = withTiming(0, { duration: 300 });
+    InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => setIsMountingHeavy(false), 50);
+    });
+  };
+
+  const handleMinimize = () => {
+    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, (finished) => {
+      if (finished) {
+        runOnJS(setPlayerExpanded)(false);
+      }
+    });
   };
 
   const panGesture = Gesture.Pan()
@@ -178,8 +185,10 @@ export default function AudioPlayerOverlay({ player }: Props) {
     })
     .onEnd((event) => {
       if (translateY.value > 150 || event.velocityY > 500) {
-        translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, () => {
-          scheduleOnRN(minimizePlayer);
+        translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, (finished) => {
+          if (finished) {
+            runOnJS(setPlayerExpanded)(false);
+          }
         });
       } else {
         translateY.value = withTiming(0, { duration: 300 });
@@ -211,73 +220,72 @@ export default function AudioPlayerOverlay({ player }: Props) {
   };
 
 
-  if (!isExpanded) {
-    return (
-      <View className="absolute bottom-0 left-0 right-0 h-16 bg-slate-800 flex-row items-center rounded-t-2xl border-t border-x border-slate-700 overflow-hidden z-50">
-        <Pressable 
-          className="flex-1 flex-row items-center px-4 h-full"
-          onPress={() => setPlayerExpanded(true)}
-        >
-          <View className="w-9 h-9 bg-blue-500 rounded-lg justify-center items-center mr-3 overflow-hidden">
-            {albumArt ? (
-              <Animated.Image source={{ uri: albumArt }} className="w-full h-full" resizeMode="cover" />
-            ) : (
-              <Music size={20} color="white" />
-            )}
-          </View>
-          <View className="flex-1 justify-center">
-            <Text className="text-white text-sm font-semibold" numberOfLines={1}>{cleanAudioTitle(currentAudio.filename)}</Text>
-          </View>
-        </Pressable>
-        
-        <View className="flex-row items-center pr-2.5">
-          <Pressable className="p-2.5" onPress={handlePrev}>
-            <SkipBack size={24} color="white" />
-          </Pressable>
-          <Pressable 
-            className="p-2.5"
-            onPress={handlePlayPause}
-          >
-            {isCurrentlyPlaying ? <Pause size={28} color="white" /> : <Play size={28} color="white" />}
-          </Pressable>
-          <Pressable className="p-2.5" onPress={nextTrack}>
-            <SkipForward size={24} color="white" />
-          </Pressable>
-        </View>
-
-        
-        {duration > 0 && (
-          <View className="absolute bottom-0 left-0 right-0 h-[3px] bg-slate-700/50">
-            <View 
-              className="h-full bg-blue-500"
-              style={{ width: `${(currentTime / duration) * 100}%` }} 
-            />
-          </View>
-        )}
-      </View>
-    );
-  }
-
-
   return (
-    <Modal
-      visible={true}
-      animationType="none"
-      transparent={true}
-      statusBarTranslucent={true}
-      onRequestClose={minimizePlayer}
-    >
-      <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
-        <Animated.View 
-          style={[
-            { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: '#0f172a', paddingTop: 24, zIndex: 100, elevation: 100 }, 
-            animatedStyle
-          ]}
-        >
-          <GestureDetector gesture={panGesture}>
-            <View style={{ flex: 1 }}>
-              <View className="flex-row items-center justify-between px-5 mb-5 mt-4">
-                <Pressable onPress={() => setPlayerExpanded(false)} className="p-2.5">
+    <>
+      {!isExpanded && (
+        <View className="absolute bottom-0 left-0 right-0 h-16 bg-slate-800 flex-row items-center rounded-t-2xl border-t border-x border-slate-700 overflow-hidden z-50">
+          <Pressable 
+            className="flex-1 flex-row items-center px-4 h-full"
+            onPress={() => setPlayerExpanded(true)}
+          >
+            <View className="w-9 h-9 bg-blue-500 rounded-lg justify-center items-center mr-3 overflow-hidden">
+              {albumArt ? (
+                <Animated.Image source={{ uri: albumArt }} className="w-full h-full" resizeMode="cover" />
+              ) : (
+                <Music size={20} color="white" />
+              )}
+            </View>
+            <View className="flex-1 justify-center">
+              <Text className="text-white text-sm font-semibold" numberOfLines={1}>{cleanAudioTitle(currentAudio.filename)}</Text>
+            </View>
+          </Pressable>
+          
+          <View className="flex-row items-center pr-2.5">
+            <Pressable className="p-2.5" onPress={handlePrev}>
+              <SkipBack size={24} color="white" />
+            </Pressable>
+            <Pressable 
+              className="p-2.5"
+              onPress={handlePlayPause}
+            >
+              {isCurrentlyPlaying ? <Pause size={28} color="white" /> : <Play size={28} color="white" />}
+            </Pressable>
+            <Pressable className="p-2.5" onPress={nextTrack}>
+              <SkipForward size={24} color="white" />
+            </Pressable>
+          </View>
+
+          
+          {duration > 0 && (
+            <View className="absolute bottom-0 left-0 right-0 h-[3px] bg-slate-700/50">
+              <View 
+                className="h-full bg-blue-500"
+                style={{ width: `${(currentTime / duration) * 100}%` }} 
+              />
+            </View>
+          )}
+        </View>
+      )}
+
+      <Modal
+        visible={isExpanded}
+        animationType="none"
+        transparent={true}
+        statusBarTranslucent={true}
+        onRequestClose={handleMinimize}
+        onShow={handleModalShow}
+      >
+        <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
+          <Animated.View 
+            style={[
+              { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: '#0f172a', paddingTop: 24, zIndex: 100, elevation: 100 }, 
+              animatedStyle
+            ]}
+          >
+            <GestureDetector gesture={panGesture}>
+              <View style={{ flex: 1 }}>
+                <View className="flex-row items-center justify-between px-5 mb-5 mt-4">
+                  <Pressable onPress={handleMinimize} className="p-2.5">
                   <ChevronDown size={32} color="white" />
                 </Pressable>
                 <Text className="text-white text-sm font-semibold tracking-widest uppercase">Now Playing</Text>
@@ -390,6 +398,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
       </View>
         </Animated.View>
       </GestureHandlerRootView>
-    </Modal>
+      </Modal>
+    </>
   );
 }
