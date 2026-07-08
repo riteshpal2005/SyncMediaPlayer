@@ -10,6 +10,8 @@ import { Music, SkipBack, SkipForward, Play, Pause, ChevronDown, Shuffle, Repeat
 import { useAudioStore } from '../../shared/store/useAudioStore';
 import { LyricsScreen } from './LyricsScreen';
 import { VisualizerScreen } from './VisualizerScreen';
+import { fetchAlbumArt } from '../../shared/services/albumArtService';
+import MediaMeta from 'react-native-media-meta';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -34,9 +36,42 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [albumArt, setAlbumArt] = useState<string | null>(null);
   const isScrubbing = useRef(false);
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
+
+  // Fetch High-Res Album Art
+  useEffect(() => {
+    let isMounted = true;
+    if (currentAudio) {
+      setAlbumArt(null); // Reset when track changes
+      
+      // Try to fetch via Native Extractor first, fallback to iTunes API
+      const loadArt = async () => {
+        try {
+          if (Platform.OS !== 'web') {
+            const meta = await MediaMeta.get(currentAudio.uri.replace('file://', ''));
+            if (meta && meta.thumb && isMounted) {
+              setAlbumArt(`data:image/png;base64,${meta.thumb}`);
+              return;
+            }
+          }
+        } catch (e) {
+          console.log("Native metadata extraction failed, falling back to iTunes API");
+        }
+        
+        // Fallback to high-res iTunes Cover Art
+        const itunesArt = await fetchAlbumArt(currentAudio.filename, 'Unknown Artist');
+        if (isMounted && itunesArt) {
+          setAlbumArt(itunesArt);
+        }
+      };
+      
+      loadArt();
+    }
+    return () => { isMounted = false; };
+  }, [currentAudio?.id]);
 
   // Update loop mode in player engine
   useEffect(() => {
@@ -155,8 +190,12 @@ export default function AudioPlayerOverlay({ player }: Props) {
           className="flex-1 flex-row items-center px-4 h-full"
           onPress={() => setPlayerExpanded(true)}
         >
-          <View className="w-9 h-9 bg-blue-500 rounded-lg justify-center items-center mr-3">
-            <Music size={20} color="white" />
+          <View className="w-9 h-9 bg-blue-500 rounded-lg justify-center items-center mr-3 overflow-hidden">
+            {albumArt ? (
+              <Animated.Image source={{ uri: albumArt }} className="w-full h-full" resizeMode="cover" />
+            ) : (
+              <Music size={20} color="white" />
+            )}
           </View>
           <View className="flex-1 justify-center">
             <Text className="text-white text-sm font-semibold" numberOfLines={1}>{currentAudio.filename}</Text>
@@ -241,8 +280,16 @@ export default function AudioPlayerOverlay({ player }: Props) {
                 {/* Page 1: Main Album Art (Center) */}
                 <View key="1">
                   <View className="flex-1 justify-center items-center px-10">
-                    <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
-                      <Music size={100} color="#3b82f6" />
+                    <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10 overflow-hidden">
+                      {albumArt ? (
+                        <Animated.Image 
+                          source={{ uri: albumArt }} 
+                          className="w-full h-full"
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <Music size={100} color="#3b82f6" />
+                      )}
                     </View>
                   </View>
 

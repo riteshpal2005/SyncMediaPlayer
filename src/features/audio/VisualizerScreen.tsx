@@ -15,7 +15,7 @@ interface Props {
   title: string;
 }
 
-const NUM_BARS = 24;
+const NUM_BARS = 120;
 
 export const VisualizerScreen = ({ isPlaying, title }: Props) => {
   // Create an array of shared values for each bar
