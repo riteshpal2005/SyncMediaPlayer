@@ -38,6 +38,7 @@ export default function VideoPlayerScreen() {
   const [playbackRate, setPlaybackRate] = useState(1.0);
   
   const hideControlsTimer = useRef<NodeJS.Timeout | null>(null);
+  const isScrubbing = useRef(false);
   
   const updateProgress = useProgressStore((state) => state.updateProgress);
   const getProgress = useProgressStore((state) => state.getProgress);
@@ -57,7 +58,9 @@ export default function VideoPlayerScreen() {
     if (!player) return;
     const interval = setInterval(() => {
       const current = player.currentTime || 0;
-      setCurrentTime(current);
+      if (!isScrubbing.current) {
+        setCurrentTime(current);
+      }
       
       const dur = player.duration || 0;
       
@@ -288,11 +291,17 @@ export default function VideoPlayerScreen() {
                     maximumTrackTintColor="rgba(255,255,255,0.3)"
                     thumbTintColor="#3b82f6"
                     onSlidingStart={() => {
+                      isScrubbing.current = true;
                       // Pause controls auto-hide while scrubbing
                       if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
                     }}
+                    onValueChange={(val) => {
+                      setCurrentTime(val);
+                      if (player) player.currentTime = val;
+                    }}
                     onSlidingComplete={(val) => {
-                      player.currentTime = val;
+                      if (player) player.currentTime = val;
+                      isScrubbing.current = false;
                       resetControlsTimer();
                     }}
                   />
