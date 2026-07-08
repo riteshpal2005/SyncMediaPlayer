@@ -21,7 +21,7 @@ export default function AudioScreen() {
 
   const { audioAssets, isLoading, errorMsg, scanAudio, isInitialScanCompleted, currentTrackId, loopMode, favorites } = useAudioStore();
 
-  const listRef = useRef<FlashList<AudioAsset>>(null);
+  const listRef = useRef<any>(null);
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
 
@@ -169,7 +169,6 @@ export default function AudioScreen() {
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
-            estimatedItemSize={72}
             contentContainerStyle={{ paddingBottom: currentTrackId ? 80 : 20 }}
             refreshControl={
               <RefreshControl 
