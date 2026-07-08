@@ -5,16 +5,8 @@
     - 0.5 is half size
     - 1.0 is full size
   -->
-  <g transform="scale(0.6)" transform-origin="50 50">
-    <path 
-      d="M 35 25 L 35 75 L 75 50 Z" 
-      fill="none" 
-      stroke="#ffffff" 
-      stroke-width="12" 
-      stroke-linejoin="round" 
-      stroke-linecap="round"
-      stroke-dasharray="130 70"
-      stroke-dashoffset="-20"
-    />
+  <g transform="scale(0.8)" transform-origin="50 50">
+    <path d="M 35 25 L 35 75 L 75 50 Z" fill="none" stroke="#ffffff" stroke-width="12" stroke-linejoin="round"
+      stroke-linecap="round" stroke-dasharray="130 70" stroke-dashoffset="-20" />
   </g>
 </svg>

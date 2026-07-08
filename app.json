@@ -2,7 +2,7 @@
   "expo": {
     "name": "SyncMediaPlayer",
     "slug": "SyncMediaPlayer",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "scheme": "syncmediaplayer",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,8 +13,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon-transparent.png",
-        "monochromeImage": "./assets/icon-transparent.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "monochromeImage": "./assets/monochrome-icon.png",
         "backgroundColor": "#2563eb"
       },
       "edgeToEdgeEnabled": true,
