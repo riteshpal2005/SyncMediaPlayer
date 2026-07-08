@@ -232,36 +232,38 @@ export default function AudioPlayerOverlay({ player }: Props) {
       onRequestClose={minimizePlayer}
     >
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: 'transparent' }}>
-        <GestureDetector gesture={panGesture}>
-          <Animated.View 
-            style={[
-              { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: '#0f172a', paddingTop: 24, zIndex: 100, elevation: 100 }, 
-              animatedStyle
-            ]}
-          >
-      
-      <View className="flex-row items-center justify-between px-5 mb-5 mt-4">
-        <Pressable onPress={() => setPlayerExpanded(false)} className="p-2.5">
-          <ChevronDown size={32} color="white" />
-        </Pressable>
-        <Text className="text-white text-sm font-semibold tracking-widest uppercase">Now Playing</Text>
-        <View style={{ width: 32 }} />
-      </View>
+        <Animated.View 
+          style={[
+            { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, backgroundColor: '#0f172a', paddingTop: 24, zIndex: 100, elevation: 100 }, 
+            animatedStyle
+          ]}
+        >
+          <GestureDetector gesture={panGesture}>
+            <View style={{ flex: 1 }}>
+              <View className="flex-row items-center justify-between px-5 mb-5 mt-4">
+                <Pressable onPress={() => setPlayerExpanded(false)} className="p-2.5">
+                  <ChevronDown size={32} color="white" />
+                </Pressable>
+                <Text className="text-white text-sm font-semibold tracking-widest uppercase">Now Playing</Text>
+                <View style={{ width: 32 }} />
+              </View>
 
-      <View className="flex-1 justify-center items-center px-10">
-        <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
-          <Music size={100} color="#3b82f6" />
-        </View>
-      </View>
+              <View className="flex-1 justify-center items-center px-10">
+                <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
+                  <Music size={100} color="#3b82f6" />
+                </View>
+              </View>
 
-      <View className="px-[30px] mb-[30px] items-center">
-        <Text className="text-white text-2xl font-bold text-center mb-2" numberOfLines={2}>
-          {currentAudio.filename}
-        </Text>
-        <Text className="text-slate-400 text-base font-medium">Unknown Artist</Text>
-      </View>
+              <View className="px-[30px] mb-[30px] items-center">
+                <Text className="text-white text-2xl font-bold text-center mb-2" numberOfLines={2}>
+                  {currentAudio.filename}
+                </Text>
+                <Text className="text-slate-400 text-base font-medium">Unknown Artist</Text>
+              </View>
+            </View>
+          </GestureDetector>
 
-      <View className="px-[30px] pb-[50px]">
+          <View className="px-[30px] pb-[50px]">
         <View className="mb-[30px]">
           <Slider
             style={{ width: '100%', height: 40 }}
@@ -330,9 +332,8 @@ export default function AudioPlayerOverlay({ player }: Props) {
           </Pressable>
         </View>
       </View>
-    </Animated.View>
-    </GestureDetector>
-    </GestureHandlerRootView>
+        </Animated.View>
+      </GestureHandlerRootView>
     </Modal>
   );
 }
