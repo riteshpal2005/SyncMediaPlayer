@@ -196,7 +196,6 @@ export default function AudioPlayerOverlay({ player }: Props) {
           <View className="flex-1 justify-center">
             <Text className="text-white text-sm font-semibold" numberOfLines={1}>{cleanAudioTitle(currentAudio.filename)}</Text>
           </View>
-          <Text className="text-slate-400 text-xs tabular-nums mr-2">{formatTime(duration)}</Text>
         </Pressable>
         
         <View className="flex-row items-center pr-2.5">
@@ -312,9 +311,10 @@ export default function AudioPlayerOverlay({ player }: Props) {
           </GestureDetector>
 
           <View className="px-[30px] pb-[50px]">
-        <View className="mb-[30px]">
+        <View className="mb-[30px] flex-row items-center">
+          <Text className="text-slate-400 text-xs tabular-nums w-[45px] text-center">{formatTime(currentTime)}</Text>
           <Slider
-            style={{ width: '100%', height: 40 }}
+            style={{ flex: 1, height: 40 }}
             minimumValue={0}
             maximumValue={Math.max(1, duration)}
             value={currentTime}
@@ -333,10 +333,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
               isScrubbing.current = false;
             }}
           />
-          <View className="flex-row justify-between px-[15px] -mt-2.5">
-            <Text className="text-slate-400 text-xs tabular-nums">{formatTime(currentTime)}</Text>
-            <Text className="text-slate-400 text-xs tabular-nums">{formatTime(duration)}</Text>
-          </View>
+          <Text className="text-slate-400 text-xs tabular-nums w-[45px] text-center">{formatTime(duration)}</Text>
         </View>
 
         <View className="flex-row justify-between items-center">
