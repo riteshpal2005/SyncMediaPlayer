@@ -32,6 +32,9 @@ export default function TabLayout() {
       id="media-bottom-tabs"
       tabBarPosition="bottom"
       screenOptions={{
+        swipeEnabled: false,
+        animationEnabled: false,
+        lazy: true,
         sceneStyle: {
           backgroundColor: bgColor,
         },
