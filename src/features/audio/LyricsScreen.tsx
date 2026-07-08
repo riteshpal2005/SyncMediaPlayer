@@ -41,8 +41,6 @@ const parseLrc = (lrcString: string): LyricLine[] => {
   return parsed;
 };
 
-const ITEM_HEIGHT = 100; // Larger height to comfortably fit 2 lines of massive text
-
 export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) => {
   const [lyricsData, setLyricsData] = useState<ParsedLyricsResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -123,23 +121,22 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
             keyExtractor={(item, index) => index.toString()}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: Dimensions.get('window').height / 4 }}
-            getItemLayout={(data, index) => ({
-              length: ITEM_HEIGHT,
-              offset: ITEM_HEIGHT * index,
-              index,
-            })}
+            onScrollToIndexFailed={info => {
+              const wait = new Promise(resolve => setTimeout(resolve, 100));
+              wait.then(() => {
+                flatListRef.current?.scrollToIndex({ index: info.index, animated: true, viewPosition: 0.5 });
+              });
+            }}
             renderItem={({ item, index }) => {
               const isActive = index === activeIndex;
               return (
                 <Pressable 
                   onPress={() => handleSeek(item.timeMs)}
-                  className="py-2 justify-center"
-                  style={{ height: ITEM_HEIGHT }}
+                  className="py-4 justify-center"
                 >
                   <Text 
                     className={`text-left font-extrabold text-3xl tracking-tight ${isActive ? 'text-white' : 'text-white/40'}`}
                     style={{ lineHeight: 42 }}
-                    numberOfLines={2}
                   >
                     {item.text}
                   </Text>
