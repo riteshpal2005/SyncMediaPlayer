@@ -107,10 +107,15 @@ export default function VideoPlayerScreen() {
   const resetControlsTimer = () => {
     setControlsVisible(true);
     if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
-    hideControlsTimer.current = setTimeout(() => {
-      setControlsVisible(false);
-    }, 3000);
+    hideControlsTimer.current = setTimeout(() => setControlsVisible(false), 3000);
   };
+
+  useEffect(() => {
+    resetControlsTimer();
+    return () => {
+      if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);

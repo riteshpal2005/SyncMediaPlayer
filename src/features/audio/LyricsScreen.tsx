@@ -45,6 +45,7 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
   const [lyricsData, setLyricsData] = useState<ParsedLyricsResult | null>(null);
   const [loading, setLoading] = useState(true);
   const flatListRef = useRef<FlatList>(null);
+  const scrollRetriesRef = useRef(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -86,6 +87,7 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
 
   useEffect(() => {
     if (activeIndex >= 0 && flatListRef.current) {
+      scrollRetriesRef.current = 0;
       try {
         flatListRef.current.scrollToIndex({
           index: activeIndex,
@@ -122,6 +124,8 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingVertical: Dimensions.get('window').height / 4 }}
             onScrollToIndexFailed={info => {
+              if (scrollRetriesRef.current > 3) return;
+              scrollRetriesRef.current += 1;
               const wait = new Promise(resolve => setTimeout(resolve, 100));
               wait.then(() => {
                 flatListRef.current?.scrollToIndex({ index: info.index, animated: true, viewPosition: 0.5 });

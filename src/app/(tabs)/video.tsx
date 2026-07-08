@@ -85,7 +85,7 @@ export default function VideoScreen() {
   };
 
   return (
-    <View className="flex-1 bg-[var(--color-background)]">
+    <View className="flex-1 bg-slate-100 dark:bg-slate-900 pitch-black:bg-black">
       {errorMsg ? (
         <View className="flex-1 justify-center items-center px-4">
           <TriangleAlert size={48} color="#ef4444" />
@@ -113,7 +113,7 @@ export default function VideoScreen() {
             data={gridData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-
+            // @ts-ignore:
             estimatedItemSize={150}
             showsVerticalScrollIndicator={false}
             refreshControl={
@@ -129,4 +129,4 @@ export default function VideoScreen() {
       )}
     </View>
   );
-}
+}

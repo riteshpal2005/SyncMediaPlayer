@@ -41,7 +41,7 @@ export const VideoThumbnailCard = React.memo(({ video }: Props) => {
 
         
         <View className="absolute bottom-1 right-1 bg-black/70 px-1.5 py-0.5 rounded">
-          <Text className="text-[var(--color-text-primary)] text-xs font-medium">
+          <Text className="text-slate-200 text-xs font-medium">
             {formatDuration(video.duration)}
           </Text>
         </View>
@@ -49,7 +49,7 @@ export const VideoThumbnailCard = React.memo(({ video }: Props) => {
       
       
       <Text 
-        className="mt-2 text-sm text-[var(--color-text-primary)] font-medium"
+        className="mt-2 text-sm text-slate-900 dark:text-slate-100 font-medium"
         numberOfLines={2}
       >
         {video.filename}

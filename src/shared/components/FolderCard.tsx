@@ -67,13 +67,13 @@ export const FolderCard = React.memo(({ group }: Props) => {
         
         
         <View className="absolute bottom-1 right-1 bg-black/70 px-1.5 py-0.5 rounded">
-          <Text className="text-[var(--color-text-primary)] text-xs font-medium">
+          <Text className="text-slate-200 text-xs font-medium">
             {group.videos.length} items
           </Text>
         </View>
 
         
-        {progressPercent > 0 && progressPercent <= 100 && (
+        {progressPercent > 0 && progressPercent < 100 && (
           <View className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700/50">
             <View 
               className="h-full bg-blue-500" 
@@ -85,7 +85,7 @@ export const FolderCard = React.memo(({ group }: Props) => {
       
       
       <Text 
-        className="mt-2 text-sm text-[var(--color-text-primary)] font-medium"
+        className="mt-2 text-sm text-slate-900 dark:text-slate-100 font-medium"
         numberOfLines={2}
       >
         {group.albumName}

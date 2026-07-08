@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react';
-import { View, Text, RefreshControl, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, RefreshControl, StyleSheet, TextInput, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { TriangleAlert, Music, Search } from 'lucide-react-native';
 import { useThemeStore } from '../../shared/store/useThemeStore';
@@ -108,7 +108,7 @@ export default function AudioScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-slate-100 dark:bg-slate-900 pitch-black:bg-black">
       
       <View className="px-4 pt-4 pb-2">
         <View className="flex-row items-center bg-slate-200 dark:bg-slate-800 rounded-xl px-4 py-2">
@@ -157,6 +157,11 @@ export default function AudioScreen() {
             {errorMsg}
           </Text>
         </View>
+      ) : isLoading && !isInitialScanCompleted ? (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color="#3b82f6" />
+          <Text style={styles.emptyText}>Scanning audio...</Text>
+        </View>
       ) : processedAssets.length === 0 && isInitialScanCompleted ? (
         <View style={styles.centerContainer}>
           <Music size={64} color={iconColor} />
@@ -194,10 +199,6 @@ export default function AudioScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'var(--color-background)',
-  },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
