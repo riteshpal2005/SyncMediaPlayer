@@ -41,7 +41,7 @@ const parseLrc = (lrcString: string): LyricLine[] => {
   return parsed;
 };
 
-const ITEM_HEIGHT = 60; // Approximate height for each verse
+const ITEM_HEIGHT = 80; // Larger height for bigger text
 
 export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) => {
   const [lyricsData, setLyricsData] = useState<ParsedLyricsResult | null>(null);
@@ -110,9 +110,7 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
   };
 
   return (
-    <View className="flex-1 px-[20px] pt-[20px] pb-[80px]">
-      <Text className="text-white text-xl font-bold mb-4 tracking-widest uppercase text-center">Lyrics</Text>
-      
+    <View className="flex-1 px-[20px] pt-[20px] pb-[120px]">
       {loading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#3b82f6" />
@@ -124,30 +122,24 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
             data={syncedLines}
             keyExtractor={(item, index) => index.toString()}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: Dimensions.get('window').height / 3 }}
+            contentContainerStyle={{ paddingVertical: Dimensions.get('window').height / 4 }}
             getItemLayout={(data, index) => ({
               length: ITEM_HEIGHT,
               offset: ITEM_HEIGHT * index,
               index,
             })}
             renderItem={({ item, index }) => {
-              const distance = Math.abs(index - activeIndex);
-              
-              // Only render previous 1, current, and next 1
-              if (distance > 1) {
-                return <View style={{ height: ITEM_HEIGHT }} />;
-              }
-
-              const isActive = distance === 0;
+              const isActive = index === activeIndex;
               return (
                 <Pressable 
                   onPress={() => handleSeek(item.timeMs)}
-                  className="py-3 justify-center"
+                  className="py-2 justify-center"
                   style={{ height: ITEM_HEIGHT }}
                 >
                   <Text 
-                    className={`text-center font-bold text-2xl ${isActive ? 'text-white' : 'text-white/30'}`}
-                    style={{ lineHeight: 36 }}
+                    className={`text-left font-extrabold text-3xl tracking-tight ${isActive ? 'text-white' : 'text-white/40'}`}
+                    style={{ lineHeight: 42 }}
+                    numberOfLines={2}
                   >
                     {item.text}
                   </Text>
