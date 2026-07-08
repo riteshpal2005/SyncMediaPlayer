@@ -31,6 +31,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const isScrubbing = useRef(false);
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
 
@@ -47,7 +48,11 @@ export default function AudioPlayerOverlay({ player }: Props) {
     
     const interval = setInterval(() => {
       const current = player.currentTime || 0;
-      setCurrentTime(current);
+      
+      // Only update local time if not actively dragging the slider
+      if (!isScrubbing.current) {
+        setCurrentTime(current);
+      }
       
       const dur = player.duration || 0;
       if (dur > 0) setDuration(dur);
@@ -260,8 +265,16 @@ export default function AudioPlayerOverlay({ player }: Props) {
             minimumTrackTintColor="#3b82f6"
             maximumTrackTintColor="#334155"
             thumbTintColor="#3b82f6"
+            onSlidingStart={() => {
+              isScrubbing.current = true;
+            }}
+            onValueChange={(val) => {
+              setCurrentTime(val);
+              if (player) player.currentTime = val;
+            }}
             onSlidingComplete={(val) => {
               if (player) player.currentTime = val;
+              isScrubbing.current = false;
             }}
           />
           <View className="flex-row justify-between px-[15px] -mt-2.5">
