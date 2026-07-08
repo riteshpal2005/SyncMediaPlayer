@@ -8,9 +8,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-    "splash": {
-      "backgroundColor": "#020617"
-    },
     "ios": {
       "supportsTablet": true
     },
