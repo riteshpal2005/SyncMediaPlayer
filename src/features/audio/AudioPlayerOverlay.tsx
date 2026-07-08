@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Dimensions, Platform, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, Dimensions, Platform, Modal } from 'react-native';
+import PagerView from 'react-native-pager-view';
 import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -227,27 +228,18 @@ export default function AudioPlayerOverlay({ player }: Props) {
                 <View style={{ width: 32 }} />
               </View>
 
-              <ScrollView
-                ref={(ref) => {
-                  if (ref) {
-                    // Small delay to ensure layout is measured on Android before scrolling
-                    setTimeout(() => ref.scrollTo({ x: SCREEN_WIDTH, animated: false }), 0);
-                  }
-                }}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                bounces={false}
-                contentOffset={{ x: SCREEN_WIDTH, y: 0 }} // Start on center page (iOS)
-                className="flex-1"
+              <PagerView
+                initialPage={1}
+                style={{ flex: 1 }}
+                overdrag={false}
               >
-                {/* Page 1: Lyrics (Left) */}
-                <View style={{ width: SCREEN_WIDTH }}>
+                {/* Page 0: Lyrics (Left) */}
+                <View key="0">
                   <LyricsScreen title={currentAudio.filename} artist="Unknown Artist" />
                 </View>
 
-                {/* Page 2: Main Album Art (Center) */}
-                <View style={{ width: SCREEN_WIDTH }}>
+                {/* Page 1: Main Album Art (Center) */}
+                <View key="1">
                   <View className="flex-1 justify-center items-center px-10">
                     <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
                       <Music size={100} color="#3b82f6" />
@@ -262,11 +254,11 @@ export default function AudioPlayerOverlay({ player }: Props) {
                   </View>
                 </View>
 
-                {/* Page 3: Visualizer (Right) */}
-                <View style={{ width: SCREEN_WIDTH }}>
+                {/* Page 2: Visualizer (Right) */}
+                <View key="2">
                   <VisualizerScreen isPlaying={!!player?.playing} title={currentAudio.filename} />
                 </View>
-              </ScrollView>
+              </PagerView>
             </View>
           </GestureDetector>
 
