@@ -3,14 +3,14 @@ name: Build and Release Android APKs
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*' # Trigger when a tag starting with "v" is pushed (e.g. v1.2.0)
 
 jobs:
   release:
     name: Build & Release APK
     runs-on: ubuntu-latest
     permissions:
-      contents: write 
+      contents: write # Required to create a Release
     
     steps:
       - name: Checkout repository
@@ -32,19 +32,25 @@ jobs:
           distribution: 'temurin'
           cache: gradle
           
-      - name: Expo Prebuild
-        run: npx expo prebuild --platform android --clean
-          
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
 
       - name: Build Release APK
         working-directory: android
-        run: ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+        env:
+          KEYSTORE_FILE: release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease -PbuildArm64Only
 
       - name: Rename Artifacts
         run: |
-          mv android/app/build/outputs/apk/release/app-release.apk SyncMedia-${{ github.ref_name }}.apk
+          mv android/app/build/outputs/apk/release/app-arm64-v8a-release.apk SyncMedia-${{ github.ref_name }}.apk
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
