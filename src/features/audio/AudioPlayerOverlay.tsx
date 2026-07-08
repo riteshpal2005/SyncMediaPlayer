@@ -11,7 +11,6 @@ import { useAudioStore } from '../../shared/store/useAudioStore';
 import { LyricsScreen } from './LyricsScreen';
 import { VisualizerScreen } from './VisualizerScreen';
 import { fetchAlbumArt } from '../../shared/services/albumArtService';
-import MediaMeta from 'react-native-media-meta';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -47,21 +46,8 @@ export default function AudioPlayerOverlay({ player }: Props) {
     if (currentAudio) {
       setAlbumArt(null); // Reset when track changes
       
-      // Try to fetch via Native Extractor first, fallback to iTunes API
       const loadArt = async () => {
-        try {
-          if (Platform.OS !== 'web') {
-            const meta = await MediaMeta.get(currentAudio.uri.replace('file://', ''));
-            if (meta && meta.thumb && isMounted) {
-              setAlbumArt(`data:image/png;base64,${meta.thumb}`);
-              return;
-            }
-          }
-        } catch (e) {
-          console.log("Native metadata extraction failed, falling back to iTunes API");
-        }
-        
-        // Fallback to high-res iTunes Cover Art
+        // Fetch high-res iTunes Cover Art
         const itunesArt = await fetchAlbumArt(currentAudio.filename, 'Unknown Artist');
         if (isMounted && itunesArt) {
           setAlbumArt(itunesArt);
