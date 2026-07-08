@@ -225,7 +225,7 @@ export default function VideoPlayerScreen() {
 
             {!isLocked && (
               <View className="flex-row items-center gap-4">
-                <Pressable onPress={cyclePlaybackRate} style={[styles.iconButton, { flexDirection: 'row', itemsCenter: 'center', gap: 4 }]}>
+                <Pressable onPress={cyclePlaybackRate} style={[styles.iconButton, { flexDirection: 'row', alignItems: 'center', gap: 4 }]}>
                   <Gauge size={24} color="white" />
                   <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}>{playbackRate}x</Text>
                 </Pressable>
