@@ -157,18 +157,26 @@ export default function AudioPlayerOverlay({ player }: Props) {
     }
   }, [isExpanded, translateY, translateX]);
 
+  const finishMountingHeavy = () => {
+    setIsMountingHeavy(false);
+  };
+
   const handleModalShow = () => {
     translateY.value = withTiming(0, { duration: 300 }, (finished) => {
       if (finished) {
-        scheduleOnRN(() => setIsMountingHeavy(false));
+        scheduleOnRN(finishMountingHeavy);
       }
     });
+  };
+
+  const finishMinimize = () => {
+    setPlayerExpanded(false);
   };
 
   const handleMinimize = () => {
     translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, (finished) => {
       if (finished) {
-        scheduleOnRN(() => setPlayerExpanded(false));
+        scheduleOnRN(finishMinimize);
       }
     });
   };
@@ -188,7 +196,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
       if (translateY.value > 150 || event.velocityY > 500) {
         translateY.value = withTiming(SCREEN_HEIGHT, { duration: 250 }, (finished) => {
           if (finished) {
-            scheduleOnRN(() => setPlayerExpanded(false));
+            scheduleOnRN(finishMinimize);
           }
         });
       } else {
