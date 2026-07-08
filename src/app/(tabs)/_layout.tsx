@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { MaterialTopTabs } from '../../shared/components/MaterialTopTabs';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Film, Music, Folder, Settings, LucideIcon } from 'lucide-react-native';
 
 export default function TabLayout() {
   const themeMode = useThemeStore((state) => state.themeMode);
@@ -18,22 +18,21 @@ export default function TabLayout() {
 
   const renderTabIcon = (
     focused: boolean,
-    activeIcon: keyof typeof Ionicons.glyphMap,
-    inactiveIcon: keyof typeof Ionicons.glyphMap,
+    IconComponent: LucideIcon,
     label: string
   ) => {
     if (focused) {
       return (
         <View className="items-center justify-center w-16 h-12">
           <View className="absolute inset-0 rounded-xl bg-[var(--color-brand-primary)] opacity-15" />
-          <Ionicons name={activeIcon} size={24} color={brandPrimary} />
+          <IconComponent size={24} color={brandPrimary} />
           <Text className="mt-0.5 font-bold text-[10px] text-[var(--color-text-secondary)]">{label}</Text>
         </View>
       );
     }
     return (
       <View className="items-center justify-center w-16 h-12">
-        <Ionicons name={inactiveIcon} size={24} color={textTertiary} />
+        <IconComponent size={24} color={textTertiary} />
         <Text className="mt-0.5 font-bold text-[10px] opacity-0">{label}</Text>
       </View>
     );
@@ -77,7 +76,7 @@ export default function TabLayout() {
         options={{
           title: 'Video',
           tabBarIcon: ({ focused }) => 
-            renderTabIcon(focused, 'film', 'film', 'Video'),
+            renderTabIcon(focused, Film, 'Video'),
         }}
       />
       <MaterialTopTabs.Screen
@@ -85,7 +84,7 @@ export default function TabLayout() {
         options={{
           title: 'Audio',
           tabBarIcon: ({ focused }) => 
-            renderTabIcon(focused, 'musical-notes', 'musical-notes', 'Audio'),
+            renderTabIcon(focused, Music, 'Audio'),
         }}
       />
       <MaterialTopTabs.Screen
@@ -93,7 +92,7 @@ export default function TabLayout() {
         options={{
           title: 'Browse',
           tabBarIcon: ({ focused }) => 
-            renderTabIcon(focused, 'folder', 'folder', 'Browse'),
+            renderTabIcon(focused, Folder, 'Browse'),
         }}
       />
       <MaterialTopTabs.Screen
@@ -101,7 +100,7 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ focused }) => 
-            renderTabIcon(focused, 'settings', 'settings', 'Settings'),
+            renderTabIcon(focused, Settings, 'Settings'),
         }}
       />
     </MaterialTopTabs>

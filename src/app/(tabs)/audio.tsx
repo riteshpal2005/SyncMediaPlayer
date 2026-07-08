@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { View, Text, RefreshControl, StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { TriangleAlert, Music } from 'lucide-react-native';
 import { useThemeStore } from '../../shared/store/useThemeStore';
 import { useAudioStore } from '../../shared/store/useAudioStore';
 import { AudioThumbnailCard } from '../../shared/components/AudioThumbnailCard';
@@ -53,14 +53,14 @@ export default function AudioScreen() {
     <View style={styles.container}>
       {errorMsg ? (
         <View style={styles.centerContainer}>
-          <Ionicons name="warning-outline" size={48} color="#ef4444" />
+          <TriangleAlert size={48} color="#ef4444" />
           <Text style={styles.errorText}>
             {errorMsg}
           </Text>
         </View>
       ) : audioAssets.length === 0 && isInitialScanCompleted ? (
         <View style={styles.centerContainer}>
-          <Ionicons name="musical-notes-outline" size={64} color={iconColor} />
+          <Music size={64} color={iconColor} />
           <Text style={styles.emptyText}>
             No audio files found.
           </Text>

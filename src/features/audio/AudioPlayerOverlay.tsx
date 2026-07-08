@@ -5,8 +5,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } fr
 import { scheduleOnRN } from 'react-native-worklets';
 import { VideoPlayer } from 'expo-video';
 import Slider from '@react-native-community/slider';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Music, SkipBack, SkipForward, Play, Pause, ChevronDown, Shuffle, Repeat, Repeat1 } from 'lucide-react-native';
 import { useAudioStore } from '../../shared/store/useAudioStore';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -75,10 +74,9 @@ export default function AudioPlayerOverlay({ player }: Props) {
     else setLoopMode('off');
   };
 
-  const getLoopIcon = () => {
-    if (loopMode === 'one') return 'repeat-one';
-    if (loopMode === 'all') return 'repeat-on';
-    return 'repeat';
+  const renderLoopIcon = () => {
+    if (loopMode === 'one') return <Repeat1 size={28} color={getLoopColor()} />;
+    return <Repeat size={28} color={getLoopColor()} />;
   };
 
   const getLoopColor = () => {
@@ -173,7 +171,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
           onPress={() => setPlayerExpanded(true)}
         >
           <View className="w-9 h-9 bg-blue-500 rounded-lg justify-center items-center mr-3">
-            <Ionicons name="musical-note" size={20} color="white" />
+            <Music size={20} color="white" />
           </View>
           <View className="flex-1 justify-center">
             <Text className="text-white text-sm font-semibold" numberOfLines={1}>{currentAudio.filename}</Text>
@@ -182,7 +180,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
         
         <View className="flex-row items-center pr-2.5">
           <Pressable className="p-2.5" onPress={handlePrev}>
-            <Ionicons name="play-skip-back" size={24} color="white" />
+            <SkipBack size={24} color="white" />
           </Pressable>
           <Pressable 
             className="p-2.5"
@@ -193,10 +191,10 @@ export default function AudioPlayerOverlay({ player }: Props) {
               }
             }}
           >
-            <Ionicons name={player?.playing ? "pause" : "play"} size={28} color="white" />
+            {player?.playing ? <Pause size={28} color="white" /> : <Play size={28} color="white" />}
           </Pressable>
           <Pressable className="p-2.5" onPress={nextTrack}>
-            <Ionicons name="play-skip-forward" size={24} color="white" />
+            <SkipForward size={24} color="white" />
           </Pressable>
         </View>
 
@@ -233,7 +231,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
       
       <View className="flex-row items-center justify-between px-5 mb-5 mt-4">
         <Pressable onPress={() => setPlayerExpanded(false)} className="p-2.5">
-          <Ionicons name="chevron-down" size={32} color="white" />
+          <ChevronDown size={32} color="white" />
         </Pressable>
         <Text className="text-white text-sm font-semibold tracking-widest uppercase">Now Playing</Text>
         <View style={{ width: 32 }} />
@@ -241,7 +239,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
       <View className="flex-1 justify-center items-center px-10">
         <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10">
-          <Ionicons name="musical-notes" size={100} color="#3b82f6" />
+          <Music size={100} color="#3b82f6" />
         </View>
       </View>
 
@@ -274,11 +272,11 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
         <View className="flex-row justify-between items-center">
           <Pressable onPress={toggleLoopMode} className="p-2.5">
-            <MaterialIcons name={getLoopIcon()} size={28} color={getLoopColor()} />
+            {renderLoopIcon()}
           </Pressable>
 
           <Pressable onPress={handlePrev} className="p-2.5">
-            <Ionicons name="play-skip-back" size={40} color="white" />
+            <SkipBack size={40} color="white" />
           </Pressable>
 
           <Pressable 
@@ -290,15 +288,19 @@ export default function AudioPlayerOverlay({ player }: Props) {
               }
             }}
           >
-            <Ionicons name={player?.playing ? "pause" : "play"} size={44} color="black" style={{ marginLeft: player?.playing ? 0 : 4 }} />
+            {player?.playing ? (
+              <Pause size={44} color="black" />
+            ) : (
+              <Play size={44} color="black" style={{ marginLeft: 4 }} />
+            )}
           </Pressable>
 
           <Pressable onPress={nextTrack} className="p-2.5">
-            <Ionicons name="play-skip-forward" size={40} color="white" />
+            <SkipForward size={40} color="white" />
           </Pressable>
 
           <Pressable className="p-2.5">
-            <Ionicons name="shuffle" size={28} color="#94a3b8" />
+            <Shuffle size={28} color="#94a3b8" />
           </Pressable>
         </View>
       </View>
