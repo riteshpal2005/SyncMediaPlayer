@@ -18,7 +18,7 @@ export default function BrowseScreen() {
       setErrorMsg(null);
       const result = await DocumentPicker.getDocumentAsync({
         type: ['video/*', 'audio/*'],
-        copyToCacheDirectory: false, // Prevent duplicating large files
+        copyToCacheDirectory: false,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {

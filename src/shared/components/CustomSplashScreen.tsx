@@ -22,7 +22,7 @@ export function CustomSplashScreen() {
     if (isInitialScanCompleted) {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 500, // 500ms fade out
+        duration: 500,
         useNativeDriver: true,
       }).start(() => {
         setIsVisible(false);
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 999, // Ensure it's above everything else
+    zIndex: 999,
   },
   title: {
     fontSize: 28,

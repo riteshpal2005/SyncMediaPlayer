@@ -47,7 +47,7 @@ export default function VideoPlayerScreen() {
 
   const player = useVideoPlayer(uri, player => {
     player.loop = false;
-    // Auto-restore progress on start
+
     if (savedProgressRef.current && !savedProgressRef.current.completed && savedProgressRef.current.currentTime > 0) {
       player.currentTime = savedProgressRef.current.currentTime;
     }
@@ -65,7 +65,7 @@ export default function VideoPlayerScreen() {
       const dur = player.duration || 0;
       
       if (savedProgressRef.current && current === 0 && dur > 0) {
-        // Still seeking to the initial restore point, don't overwrite with 0
+
         return;
       } else if (current > 0) {
         savedProgressRef.current = undefined; // Restored successfully
@@ -73,7 +73,7 @@ export default function VideoPlayerScreen() {
 
       if (dur > 0) {
         setDuration(dur);
-        // Persist progress periodically
+
         updateProgress(uri, current, dur);
       }
     }, 500);
@@ -135,7 +135,7 @@ export default function VideoPlayerScreen() {
     resetControlsTimer();
   };
 
-  // Gestures Update Handlers
+
   const handleGestureUpdate = (translationY: number, absoluteX: number) => {
     if (isLocked) return;
     resetControlsTimer();
@@ -163,7 +163,7 @@ export default function VideoPlayerScreen() {
     resetControlsTimer();
   };
 
-  // Define Gestures
+
   const panGesture = Gesture.Pan().onUpdate((event) => {
     scheduleOnRN(handleGestureUpdate, event.translationY, event.absoluteX);
   });
@@ -183,10 +183,10 @@ export default function VideoPlayerScreen() {
       scheduleOnRN(toggleControls);
     });
 
-  // Prioritize double tap over single tap
+
   singleTap.requireExternalGestureToFail(doubleTap);
 
-  // Combine them all
+
   const composedGestures = Gesture.Simultaneous(
     panGesture,
     Gesture.Exclusive(doubleTap, singleTap)
@@ -203,16 +203,16 @@ export default function VideoPlayerScreen() {
         allowsPictureInPicture
       />
 
-      {/* Unified Gesture Overlay */}
+      
       <GestureDetector gesture={composedGestures}>
         <View style={StyleSheet.absoluteFill}>
           
-          {/* UI Controls - Rendered on top of video, but under gesture detector (or visually above, interactions pass through) */}
-          {/* We must place UI elements *outside* the Gesture Detector if they need their own press events, OR set absolute position on top */}
+          
+          
         </View>
       </GestureDetector>
 
-      {/* UI Controls overlay (Absolute positioned on top of Gesture Detector to receive button presses) */}
+      
       {controlsVisible && (
         <View style={styles.controlsContainer} pointerEvents="box-none">
           
@@ -242,7 +242,7 @@ export default function VideoPlayerScreen() {
             )}
           </View>
 
-          {/* Middle Controls */}
+          
           {!isLocked && (
             <View style={styles.middleControls}>
               <Pressable style={styles.iconButton}>
@@ -267,7 +267,7 @@ export default function VideoPlayerScreen() {
             </View>
           )}
 
-          {/* Bottom Bar */}
+          
           <View style={styles.bottomBar}>
             <View style={styles.timeRow}>
               <Pressable onPress={toggleLock} style={[styles.iconButton, { marginRight: 10 }]}>
@@ -293,7 +293,7 @@ export default function VideoPlayerScreen() {
                     tapToSeek={true}
                     onSlidingStart={() => {
                       isScrubbing.current = true;
-                      // Pause controls auto-hide while scrubbing
+
                       if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
                     }}
                     onValueChange={(val) => {

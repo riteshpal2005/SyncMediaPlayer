@@ -26,7 +26,7 @@ export async function scanForAudio(): Promise<AudioAsset[]> {
     throw new Error('Media library permission not granted');
   }
 
-  // Get all albums
+
   const albums = await MediaLibrary.getAlbumsAsync({
     includeSmartAlbums: true,
   });
@@ -36,7 +36,7 @@ export async function scanForAudio(): Promise<AudioAsset[]> {
   for (const album of albums) {
     const titleLower = album.title.toLowerCase();
     
-    // We only want songs from Music and Download directories
+
     if (titleLower !== 'music' && titleLower !== 'download' && !titleLower.includes('download')) {
       continue;
     }
@@ -73,7 +73,7 @@ export async function scanForAudio(): Promise<AudioAsset[]> {
     }
   }
 
-  // Remove duplicates and sort by creation time (newest first)
+
   const uniqueAudios = Array.from(new Map(combinedAudioAssets.map(item => [item.id, item])).values());
   uniqueAudios.sort((a, b) => b.creationTime - a.creationTime);
 

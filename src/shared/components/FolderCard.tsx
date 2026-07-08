@@ -21,12 +21,12 @@ export const FolderCard = React.memo(({ group }: Props) => {
     for (const video of group.videos) {
       const progress = progressRecord[video.uri];
       if (progress && !progress.completed && progress.currentTime > 0) {
-        // First in-progress video found
+
         inProgressVideo = video;
         break; // Priority 1 found, stop searching
       }
       
-      // Keep track of the first incomplete video (not started, or 0% progress)
+
       if (!progress || (progress && !progress.completed)) {
         if (!firstIncompleteVideo) {
           firstIncompleteVideo = video;
@@ -34,22 +34,22 @@ export const FolderCard = React.memo(({ group }: Props) => {
       }
     }
 
-    // Priority 1: In Progress
+
     if (inProgressVideo) return inProgressVideo;
-    // Priority 2: First incomplete (not started)
+
     if (firstIncompleteVideo) return firstIncompleteVideo;
-    // Priority 3: All complete, default to the first one
+
     return group.videos[0];
   }, [group.videos, progressRecord]);
 
   const handlePress = () => {
-    // Navigate to the new folder screen, passing the albumId
+
     router.push(`/folder/${group.albumId}`);
   };
 
   if (!thumbnailVideo) return null;
 
-  // Compute overall progress bar for the thumbnail video
+
   const currentProgress = progressRecord[thumbnailVideo.uri];
   const progressPercent = currentProgress 
     ? Math.min(100, Math.max(0, (currentProgress.currentTime / currentProgress.duration) * 100))
@@ -57,7 +57,7 @@ export const FolderCard = React.memo(({ group }: Props) => {
 
   return (
     <Pressable onPress={handlePress} className="w-full">
-      {/* Thumbnail Container */}
+      
       <View className="w-full aspect-video bg-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden relative justify-center items-center">
         <Image 
           source={{ uri: thumbnailVideo.uri }} 
@@ -65,14 +65,14 @@ export const FolderCard = React.memo(({ group }: Props) => {
           resizeMode="cover"
         />
         
-        {/* Video Count Badge */}
+        
         <View className="absolute bottom-1 right-1 bg-black/70 px-1.5 py-0.5 rounded">
           <Text className="text-[var(--color-text-primary)] text-xs font-medium">
             {group.videos.length} items
           </Text>
         </View>
 
-        {/* Progress Bar overlay at the very bottom of thumbnail if in progress */}
+        
         {progressPercent > 0 && progressPercent <= 100 && (
           <View className="absolute bottom-0 left-0 right-0 h-1 bg-slate-700/50">
             <View 
@@ -83,7 +83,7 @@ export const FolderCard = React.memo(({ group }: Props) => {
         )}
       </View>
       
-      {/* Folder Title */}
+      
       <Text 
         className="mt-2 text-sm text-[var(--color-text-primary)] font-medium"
         numberOfLines={2}

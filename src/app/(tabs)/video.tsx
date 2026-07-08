@@ -36,23 +36,23 @@ export default function VideoScreen() {
   const gridData = useMemo(() => {
     const flatItems: GridItem[] = [];
 
-    // Separate ungrouped from grouped
+
     const ungroupedGroup = videoGroups.find(g => g.albumId === 'ungrouped');
     const folderGroups = videoGroups.filter(g => g.albumId !== 'ungrouped');
 
-    // Add folder cards
+
     folderGroups.forEach(group => {
       flatItems.push({ type: 'folder', group, id: `folder-${group.albumId}` });
     });
 
-    // Add ungrouped videos
+
     if (ungroupedGroup) {
       ungroupedGroup.videos.forEach(video => {
         flatItems.push({ type: 'video', video, id: `video-${video.id}` });
       });
     }
 
-    // Chunk into rows of 2
+
     const data: RowItem[] = [];
     const COLUMNS = 2;
     for (let i = 0; i < flatItems.length; i += COLUMNS) {
@@ -113,7 +113,7 @@ export default function VideoScreen() {
             data={gridData}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            // @ts-ignore: estimatedItemSize exists in FlashList but typing fails
+
             estimatedItemSize={150}
             showsVerticalScrollIndicator={false}
             refreshControl={

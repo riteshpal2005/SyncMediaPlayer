@@ -25,7 +25,7 @@ export default function AudioScreen() {
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
 
-  // Initialize the video player globally for this screen
+
   const player = useVideoPlayer(
     currentAudio 
       ? { 
@@ -55,13 +55,13 @@ export default function AudioScreen() {
   const processedAssets = useMemo(() => {
     let result = [...audioAssets];
 
-    // Filter by search query
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(a => a.filename.toLowerCase().includes(q));
     }
 
-    // Sort by selected order
+
     result.sort((a, b) => {
       if (sortOrder === 'latest') {
         return b.creationTime - a.creationTime;
@@ -75,11 +75,11 @@ export default function AudioScreen() {
       return 0;
     });
 
-    // Bring favorites to top
+
     result.sort((a, b) => {
       const aFav = favorites.includes(a.id) ? 1 : 0;
       const bFav = favorites.includes(b.id) ? 1 : 0;
-      return bFav - aFav; // true (1) before false (0)
+      return bFav - aFav;
     });
 
     return result;
@@ -98,7 +98,7 @@ export default function AudioScreen() {
 
   const handleSortChange = (newSort: SortOrder) => {
     setSortOrder(newSort);
-    // Use setTimeout to ensure the list is sorted before scrolling
+
     setTimeout(() => {
       listRef.current?.scrollToOffset({ offset: 0, animated: true });
     }, 50);
@@ -106,7 +106,7 @@ export default function AudioScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Search Bar */}
+      
       <View className="px-4 pt-4 pb-2">
         <View className="flex-row items-center bg-slate-200 dark:bg-slate-800 rounded-xl px-4 py-2">
           <Search size={20} color={iconColor} />
@@ -120,7 +120,7 @@ export default function AudioScreen() {
         </View>
       </View>
 
-      {/* Sort Options */}
+      
       <View className="px-4 pb-3">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
           {sortOptions.map((opt) => (
@@ -182,7 +182,7 @@ export default function AudioScreen() {
         </View>
       )}
 
-      {/* Audio Player Overlay / Dock */}
+      
       {currentTrackId && (
         <AudioPlayerOverlay player={player} />
       )}
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     marginTop: 16,
-    color: '#94a3b8', // Use standard slate color if theme variable not directly accessible
+    color: '#94a3b8',
   },
   listContainer: {
     flex: 1,

@@ -18,8 +18,7 @@ export default function FolderScreen() {
   const gridData = useMemo(() => {
     if (!group) return [];
     const data = [];
-    const COLUMNS = 2; // Flat 2 column grid for videos inside the folder
-
+    const COLUMNS = 2; 
     for (let i = 0; i < group.videos.length; i += COLUMNS) {
       data.push({
         id: `row-${i}`,
@@ -47,7 +46,7 @@ export default function FolderScreen() {
           <VideoThumbnailCard video={video} />
         </View>
       ))}
-      {/* Fill empty spaces if row is not full */}
+      
       {Array.from({ length: 2 - item.videos.length }).map((_, idx) => (
         <View key={`empty-${idx}`} style={{ flex: 1, paddingHorizontal: 4 }} />
       ))}
@@ -56,7 +55,7 @@ export default function FolderScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-900">
-      {/* Header */}
+      
       <View className="flex-row items-center px-4 pt-12 pb-4 bg-slate-100 dark:bg-slate-800">
         <Pressable onPress={() => router.back()} className="p-2 mr-2">
           <ArrowLeft size={24} color="#3b82f6" />
@@ -74,7 +73,7 @@ export default function FolderScreen() {
           data={gridData}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          // @ts-ignore: estimatedItemSize exists in FlashList but typing fails
+          // @ts-ignore
           estimatedItemSize={150}
           showsVerticalScrollIndicator={false}
         />

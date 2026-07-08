@@ -14,7 +14,7 @@ interface ProgressState {
   getProgress: (uri: string) => VideoProgress | undefined;
 }
 
-const COMPLETION_THRESHOLD = 0.95; // 95%
+const COMPLETION_THRESHOLD = 0.95;
 
 export const useProgressStore = create<ProgressState>()(
   persist(

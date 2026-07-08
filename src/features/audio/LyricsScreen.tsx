@@ -15,7 +15,7 @@ interface LyricLine {
   text: string;
 }
 
-// Parses LRC format: [mm:ss.xx] Lyrics
+
 const parseLrc = (lrcString: string): LyricLine[] => {
   const lines = lrcString.split('\n');
   const parsed: LyricLine[] = [];
@@ -27,7 +27,7 @@ const parseLrc = (lrcString: string): LyricLine[] => {
     if (match) {
       const minutes = parseInt(match[1], 10);
       const seconds = parseInt(match[2], 10);
-      const milliseconds = parseInt(match[3].padEnd(3, '0'), 10); // pad [00:12.3] -> 300
+      const milliseconds = parseInt(match[3].padEnd(3, '0'), 10);
       
       const timeMs = (minutes * 60 * 1000) + (seconds * 1000) + milliseconds;
       const text = line.replace(timeRegex, '').trim();
@@ -69,31 +69,31 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
     return [];
   }, [lyricsData?.syncedLyrics]);
 
-  // Find current active line index
+
   const activeIndex = useMemo(() => {
     if (syncedLines.length === 0) return -1;
     const currentMs = currentTime * 1000;
     
-    // Find the last line whose time is less than or equal to current time
+
     for (let i = syncedLines.length - 1; i >= 0; i--) {
       if (syncedLines[i].timeMs <= currentMs) {
         return i;
       }
     }
-    return 0; // default to first line if before start
+    return 0;
   }, [currentTime, syncedLines]);
 
-  // Auto-scroll logic
+
   useEffect(() => {
     if (activeIndex >= 0 && flatListRef.current) {
       try {
         flatListRef.current.scrollToIndex({
           index: activeIndex,
           animated: true,
-          viewPosition: 0.5 // center it
+          viewPosition: 0.5
         });
       } catch (e) {
-        // Flatlist might not have rendered index yet
+
       }
     }
   }, [activeIndex]);
@@ -145,7 +145,7 @@ export const LyricsScreen = ({ title, artist, currentTime = 0, player }: Props) 
             }}
           />
         ) : (
-          // Fallback Plain Lyrics if no sync available
+
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
             <Text className="text-white text-2xl leading-10 text-center font-bold">
               {lyricsData.plainLyrics}

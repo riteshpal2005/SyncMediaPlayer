@@ -32,7 +32,7 @@ export async function scanForVideos(): Promise<VideoGroup[]> {
     throw new Error('Media library permission not granted');
   }
 
-  // Get all albums
+
   const albums = await MediaLibrary.getAlbumsAsync({
     includeSmartAlbums: true,
   });
@@ -76,7 +76,7 @@ export async function scanForVideos(): Promise<VideoGroup[]> {
     }
 
     if (albumVideos.length > 0) {
-      // Remove duplicates just in case
+
       const uniqueVideos = Array.from(new Map(albumVideos.map(item => [item.id, item])).values());
 
       const titleLower = album.title.toLowerCase();
@@ -93,18 +93,18 @@ export async function scanForVideos(): Promise<VideoGroup[]> {
     }
   }
 
-  // Sort groups alphabetically by albumName
+
   videoGroups.sort((a, b) => a.albumName.localeCompare(b.albumName));
 
-  // Add ungrouped videos at the top if there are any
+
   if (ungroupedVideos.length > 0) {
-    // Sort combined ungrouped videos
+
     const uniqueUngrouped = Array.from(new Map(ungroupedVideos.map(item => [item.id, item])).values());
     uniqueUngrouped.sort((a, b) => b.creationTime - a.creationTime);
     
     videoGroups.unshift({
       albumId: 'ungrouped',
-      albumName: 'Ungrouped', // This will be used to identify it in UI and hide the header
+      albumName: 'Ungrouped',
       videos: uniqueUngrouped,
     });
   }

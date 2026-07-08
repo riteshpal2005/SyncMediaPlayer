@@ -28,11 +28,11 @@ export async function fetchLyrics(title: string, artist: string = ''): Promise<P
   }
 
   try {
-    // Advanced string cleaning
+
     const cleanTitle = cleanAudioTitle(title);
 
     const query = new URLSearchParams({
-      q: cleanTitle, // use q for general search which is more forgiving
+      q: cleanTitle,
     });
 
     const response = await fetch(`${LRCLIB_API_URL}?${query.toString()}`);
@@ -43,7 +43,7 @@ export async function fetchLyrics(title: string, artist: string = ''): Promise<P
     const data: LyricsResponse[] = await response.json();
     
     if (data && data.length > 0) {
-      // Pick the best match
+
       const bestMatch = data.find(d => !d.instrumental && d.plainLyrics);
       if (bestMatch && bestMatch.plainLyrics) {
         const result: ParsedLyricsResult = {

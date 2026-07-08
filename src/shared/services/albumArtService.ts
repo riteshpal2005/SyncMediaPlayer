@@ -10,7 +10,7 @@ export async function fetchAlbumArt(title: string, artist: string = ''): Promise
   }
 
   try {
-    // Advanced string cleaning
+
     const cleanTitle = cleanAudioTitle(title);
 
     const searchTerm = artist && artist !== 'Unknown Artist' 
@@ -27,7 +27,7 @@ export async function fetchAlbumArt(title: string, artist: string = ''): Promise
     if (data.results && data.results.length > 0) {
       const result = data.results[0];
       if (result.artworkUrl100) {
-        // iTunes returns 100x100 by default, change it to 600x600 for high quality
+
         const highResArtwork = result.artworkUrl100.replace('100x100bb', '600x600bb');
         albumArtCache.set(cacheKey, highResArtwork);
         return highResArtwork;

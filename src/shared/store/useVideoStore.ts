@@ -17,7 +17,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
   scanVideos: async (forceRefresh = false) => {
     const { videoGroups, isInitialScanCompleted } = get();
     
-    // Only scan if it's the first time OR if forced refresh
+
     if (!forceRefresh && isInitialScanCompleted) {
       return;
     }
@@ -36,7 +36,7 @@ export const useVideoStore = create<VideoState>((set, get) => ({
       set({ 
         errorMsg: error?.message || 'Failed to scan videos',
         isLoading: false,
-        isInitialScanCompleted: true // even on error, we mark it complete so we don't infinitely retry unless pulled to refresh
+        isInitialScanCompleted: true
       });
     }
   }

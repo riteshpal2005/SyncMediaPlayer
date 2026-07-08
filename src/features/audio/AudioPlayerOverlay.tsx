@@ -40,14 +40,14 @@ export default function AudioPlayerOverlay({ player }: Props) {
 
   const currentAudio = audioAssets.find(a => a.id === currentTrackId);
 
-  // Fetch High-Res Album Art
+
   useEffect(() => {
     let isMounted = true;
     if (currentAudio) {
       setAlbumArt(null); // Reset when track changes
       
       const loadArt = async () => {
-        // Fetch high-res iTunes Cover Art
+
         const itunesArt = await fetchAlbumArt(currentAudio.filename, 'Unknown Artist');
         if (isMounted && itunesArt) {
           setAlbumArt(itunesArt);
@@ -59,21 +59,21 @@ export default function AudioPlayerOverlay({ player }: Props) {
     return () => { isMounted = false; };
   }, [currentAudio?.id]);
 
-  // Update loop mode in player engine
+
   useEffect(() => {
     if (player) {
       player.loop = loopMode === 'one';
     }
   }, [loopMode, player]);
 
-  // Sync state manually from player to React state (for slider and display)
+
   useEffect(() => {
     if (!player) return;
     
     const interval = setInterval(() => {
       const current = player.currentTime || 0;
       
-      // Only update local time if not actively dragging the slider
+
       if (!isScrubbing.current) {
         setCurrentTime(current);
       }
@@ -81,7 +81,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
       const dur = player.duration || 0;
       if (dur > 0) setDuration(dur);
 
-      // Auto-next logic when track finishes
+
       if (dur > 0 && !player.playing && Math.abs(current - dur) < 0.5) {
         if (loopMode === 'one') {
           player.currentTime = 0;
@@ -124,7 +124,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
   const translateY = useSharedValue(0);
   const activeAxis = useSharedValue<'x' | 'y' | null>(null);
 
-  // Smooth entrance animation without bounce
+
   useEffect(() => {
     if (isExpanded) {
       translateY.value = SCREEN_HEIGHT;
@@ -168,7 +168,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
     };
   });
 
-  // ----- MINIMIZED DOCK UI -----
+
   if (!isExpanded) {
     return (
       <View className="absolute bottom-0 left-0 right-0 h-16 bg-slate-800 flex-row items-center rounded-t-2xl border-t border-x border-slate-700 overflow-hidden z-50">
@@ -214,7 +214,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
           </Pressable>
         </View>
 
-        {/* Progress Bar overlay on dock */}
+        
         {duration > 0 && (
           <View className="absolute bottom-0 left-0 right-0 h-[3px] bg-transparent">
             <View 
@@ -227,7 +227,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
     );
   }
 
-  // ----- FULLSCREEN MODAL UI -----
+
   return (
     <Modal
       visible={true}
@@ -258,7 +258,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
                 style={{ flex: 1 }}
                 overdrag={false}
               >
-                {/* Page 0: Lyrics (Left) */}
+                
                 <View key="0">
                   <LyricsScreen 
                     title={currentAudio.filename} 
@@ -268,7 +268,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
                   />
                 </View>
 
-                {/* Page 1: Main Album Art (Center) */}
+                
                 <View key="1">
                   <View className="flex-1 justify-center items-center px-10">
                     <View className="w-full aspect-square bg-slate-800 rounded-[20px] justify-center items-center shadow-lg shadow-black/50 elevation-10 overflow-hidden">
@@ -292,7 +292,7 @@ export default function AudioPlayerOverlay({ player }: Props) {
                   </View>
                 </View>
 
-                {/* Page 2: Visualizer (Right) */}
+                
                 <View key="2">
                   <VisualizerScreen isPlaying={!!player?.playing} title={currentAudio.filename} />
                 </View>

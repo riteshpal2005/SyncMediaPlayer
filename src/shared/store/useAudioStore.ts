@@ -11,15 +11,15 @@ interface AudioState {
   isInitialScanCompleted: boolean;
   errorMsg: string | null;
   
-  // Playback state
+
   currentTrackId: string | null;
   isPlayerExpanded: boolean;
   loopMode: LoopMode;
   
-  // Favorites
-  favorites: string[]; // Store array of AudioAsset IDs
 
-  // Actions
+  favorites: string[];
+
+
   scanAudio: (forceRefresh?: boolean) => Promise<void>;
   playTrack: (id: string) => void;
   setPlayerExpanded: (expanded: boolean) => void;
@@ -117,7 +117,7 @@ export const useAudioStore = create<AudioState>()(
     {
       name: 'audio-store',
       storage: createJSONStorage(() => mmkvAudioStorage),
-      // Only persist the favorites array
+
       partialize: (state) => ({ favorites: state.favorites }),
     }
   )

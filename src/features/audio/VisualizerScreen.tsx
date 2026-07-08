@@ -18,7 +18,7 @@ interface Props {
 const NUM_BARS = 48;
 
 export const VisualizerScreen = ({ isPlaying, title }: Props) => {
-  // Create an array of shared values for each bar
+
   const bars = Array.from({ length: NUM_BARS }).map(() => useSharedValue(10));
   const centerPulse = useSharedValue(1);
 
@@ -34,7 +34,7 @@ export const VisualizerScreen = ({ isPlaying, title }: Props) => {
       );
 
       bars.forEach((bar, index) => {
-        // Pseudo-random offset and duration for each bar
+
         const randomDuration = 300 + Math.random() * 400;
         const randomHeight = 20 + Math.random() * 80;
         
@@ -67,7 +67,7 @@ export const VisualizerScreen = ({ isPlaying, title }: Props) => {
       <Text className="text-white text-xl font-bold mb-10 tracking-widest uppercase text-center absolute top-[20px]">Visualizer</Text>
       
       <View className="items-center justify-center mb-16">
-        {/* Central Pulsing Sphere */}
+        
         <Animated.View 
           className="w-[150px] h-[150px] rounded-full bg-blue-500/20 items-center justify-center absolute"
           style={centerStyle}
@@ -77,7 +77,7 @@ export const VisualizerScreen = ({ isPlaying, title }: Props) => {
           </View>
         </Animated.View>
 
-        {/* Multidimensional Bars arranged in a circle */}
+        
         <View className="w-[250px] h-[250px] items-center justify-center">
           {bars.map((bar, i) => {
             const angle = (i * 360) / NUM_BARS;
@@ -94,7 +94,7 @@ export const VisualizerScreen = ({ isPlaying, title }: Props) => {
                   {
                     transform: [
                       { rotate: `${angle}deg` },
-                      { translateY: -100 } // push outward from center
+                      { translateY: -100 }
                     ]
                   },
                   barStyle
